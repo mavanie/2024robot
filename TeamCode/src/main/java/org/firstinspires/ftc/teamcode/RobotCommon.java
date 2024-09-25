@@ -42,7 +42,7 @@ public class RobotCommon {
         frontRight.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
         backLeft.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
         backRight.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
-        backRight.setDirection(DcMotor.Direction.REVERSE);
+        frontRight.setDirection(DcMotor.Direction.REVERSE);
 
         // Enable Encoders
         frontLeft.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
@@ -68,8 +68,8 @@ public class RobotCommon {
         double wheel4;
 
         wheel1 = vx + vy + rot;
-        wheel2 = (vx - vy) - rot;
-        wheel3 = (vx - vy) + rot;
+        wheel2 = (vx - vy) + rot;
+        wheel3 = (vx - vy) - rot;
         wheel4 = (vx + vy) - rot;
         frontLeft.setVelocity(wheel1);
         backLeft.setVelocity(wheel2);

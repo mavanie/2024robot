@@ -17,7 +17,8 @@ public class RobotCommon {
     private double vx;
     private double vy;
     private double rot;
-
+    private DcMotor arm;
+    private DcMotor slides;
     public RobotCommon(HardwareMap hardwareMap) {
         this.hardwareMap = hardwareMap;
     }
@@ -34,6 +35,8 @@ public class RobotCommon {
         frontRight = hardwareMap.get(DcMotorEx.class, "Front Right");
         backLeft = hardwareMap.get(DcMotorEx.class, "Back Left");
         backRight = hardwareMap.get(DcMotorEx.class, "Back Right");
+        arm = hardwareMap.get(DcMotorEx.class, "arm");
+        slides = hardwareMap.get(DcMotorEx.class,"slides");
 
         // Config Motors
         frontLeft.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
@@ -42,12 +45,15 @@ public class RobotCommon {
         backRight.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
         frontRight.setDirection(DcMotor.Direction.REVERSE);
         backLeft.setDirection(DcMotor.Direction.REVERSE);
-
         // Enable Encoders
         frontLeft.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
         backLeft.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
         frontRight.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
         backRight.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
+
+        // Config slides
+        slides.setTargetPosition(slides.getCurrentPosition());
+        slides.setMode(DcMotor.RunMode.RUN_TO_POSITION);
     }
 
     public void run() {
@@ -74,5 +80,15 @@ public class RobotCommon {
         backLeft.setVelocity(wheel2);
         frontRight.setVelocity(wheel3);
         backRight.setVelocity(wheel4);
+    }
+    public void moveSlide(int targetPosition){
+        slides.setTargetPosition(targetPosition);
+        slides.setMode(DcMotor.RunMode.RUN_TO_POSITION);
+    }
+    public int getSlidePosition(){
+        return slides.getCurrentPosition();
+    }
+    public int getSlideTargetPosition(){
+        return slides.getTargetPosition();
     }
 }

@@ -1,5 +1,7 @@
 package org.firstinspires.ftc.teamcode;
 
+import com.acmerobotics.dashboard.config.Config;
+import com.qualcomm.robotcore.hardware.AnalogInput;
 import com.qualcomm.robotcore.hardware.DcMotorEx;
 import com.qualcomm.robotcore.hardware.HardwareMap;
 import com.qualcomm.robotcore.hardware.DcMotor;
@@ -7,9 +9,12 @@ import com.qualcomm.hardware.lynx.LynxModule;
 
 import java.util.List;
 
+@Config
+
 public class RobotCommon {
     private final HardwareMap hardwareMap;
 
+    // Wheels
     private DcMotorEx frontLeft;
     private DcMotorEx frontRight;
     private DcMotorEx backLeft;
@@ -17,8 +22,15 @@ public class RobotCommon {
     private double vx;
     private double vy;
     private double rot;
-    private DcMotor arm;
-    private DcMotor slides;
+
+    // Arm
+    private DcMotorEx arm;
+    private AnalogInput potentiometer;
+
+    // Slides
+    private DcMotorEx slides;
+    public static int SLIDE_VELOCITY = 5000;
+
     public RobotCommon(HardwareMap hardwareMap) {
         this.hardwareMap = hardwareMap;
     }
@@ -37,6 +49,7 @@ public class RobotCommon {
         backRight = hardwareMap.get(DcMotorEx.class, "Back Right");
         arm = hardwareMap.get(DcMotorEx.class, "arm");
         slides = hardwareMap.get(DcMotorEx.class,"slides");
+        potentiometer = hardwareMap.get(AnalogInput.class,"potentiometer");
 
         // Config Motors
         frontLeft.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
@@ -54,6 +67,11 @@ public class RobotCommon {
         // Config slides
         slides.setTargetPosition(slides.getCurrentPosition());
         slides.setMode(DcMotor.RunMode.RUN_TO_POSITION);
+        slides.setVelocity(SLIDE_VELOCITY);
+
+        // Arm
+        arm.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
+
     }
 
     public void run() {
@@ -81,14 +99,22 @@ public class RobotCommon {
         frontRight.setVelocity(wheel3);
         backRight.setVelocity(wheel4);
     }
+
+    public void moveArm(int targetPosition){
+
+    }
     public void moveSlide(int targetPosition){
         slides.setTargetPosition(targetPosition);
         slides.setMode(DcMotor.RunMode.RUN_TO_POSITION);
+        slides.setVelocity(SLIDE_VELOCITY);
     }
     public int getSlidePosition(){
         return slides.getCurrentPosition();
     }
     public int getSlideTargetPosition(){
         return slides.getTargetPosition();
+    }
+    public double getPotentiometer(){
+        return potentiometer.getVoltage();
     }
 }

@@ -11,16 +11,13 @@ import com.acmerobotics.dashboard.FtcDashboard;
 public class MainRobot extends LinearOpMode {
     private RobotCommon common;
     // Drive
-    private double rot;
-    private double vx;
-    private double vy;
-    int FAST_FORWARD_FACTOR = 1400;
-    int SLOW_FORWARD_FACTOR = 1000;
-    int FAST_SIDEWAYS_FACTOR = 1200;
-    int SLOW_SIDEWAYS_FACTOR = 720;
-    int FAST_ROTATION_FACTOR = 1300;
-    int SLOW_ROTATION_FACTOR = 900;
-    public static int SLIDES_EXTENDED = 1000;
+    public static int FAST_FORWARD_FACTOR = 1400;
+    public static int SLOW_FORWARD_FACTOR = 1000;
+    public static int FAST_SIDEWAYS_FACTOR = 1200;
+    public static int SLOW_SIDEWAYS_FACTOR = 720;
+    public static int FAST_ROTATION_FACTOR = 1300;
+    public static int SLOW_ROTATION_FACTOR = 900;
+    public static int SLIDES_EXTENDED = 5500;
     public static int SLIDES_RETRACTED = 0;
 
     // Gamepads
@@ -29,7 +26,7 @@ public class MainRobot extends LinearOpMode {
 
 
     @Override
-    public void runOpMode() throws InterruptedException {
+    public void runOpMode() {
         initialize();
 
         waitForStart();
@@ -60,9 +57,9 @@ public class MainRobot extends LinearOpMode {
         // Drive
         boolean movingFastSideways = g1.a && Math.abs(g1.left_stick_x) > Math.abs(g1.left_stick_y);
         boolean movingFastForward = g1.a && Math.abs(g1.left_stick_y) > Math.abs(g1.left_stick_x);
-        vx = movingFastSideways ? 0 : -square(g1.left_stick_y) * (g1.a ?  FAST_FORWARD_FACTOR : SLOW_FORWARD_FACTOR);
-        vy = movingFastForward ? 0 : square(g1.left_stick_x) * (g1.a ? FAST_SIDEWAYS_FACTOR : SLOW_SIDEWAYS_FACTOR);
-        rot = square(g1.right_trigger - g1.left_trigger) * (g1.a ? FAST_ROTATION_FACTOR : SLOW_ROTATION_FACTOR);
+        double vx = movingFastSideways ? 0 : -square(g1.left_stick_y) * (g1.a ?  FAST_FORWARD_FACTOR : SLOW_FORWARD_FACTOR);
+        double vy = movingFastForward ? 0 : square(g1.left_stick_x) * (g1.a ? FAST_SIDEWAYS_FACTOR : SLOW_SIDEWAYS_FACTOR);
+        double rot = square(g1.right_trigger - g1.left_trigger) * (g1.a ? FAST_ROTATION_FACTOR : SLOW_ROTATION_FACTOR);
         common.setRobotSpeed(vx, vy, rot);
 
         // Slides
@@ -76,6 +73,7 @@ public class MainRobot extends LinearOpMode {
     private void sendTelemetry() {
         telemetry.addData("Slide Position", common.getSlidePosition());
         telemetry.addData("Slide Target Position", common.getSlideTargetPosition());
+        telemetry.addData("potentiometer", common.getPotentiometer());
         telemetry.update();
     }
     public static double square(double amount) {

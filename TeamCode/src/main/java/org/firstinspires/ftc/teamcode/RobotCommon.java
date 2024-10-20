@@ -1,14 +1,22 @@
 package org.firstinspires.ftc.teamcode;
 
 import com.acmerobotics.dashboard.config.Config;
+import com.qualcomm.hardware.rev.RevHubOrientationOnRobot;
 import com.qualcomm.robotcore.hardware.AnalogInput;
 import com.qualcomm.robotcore.hardware.CRServo;
 import com.qualcomm.robotcore.hardware.DcMotorEx;
 import com.qualcomm.robotcore.hardware.HardwareMap;
 import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.hardware.lynx.LynxModule;
+import com.qualcomm.robotcore.hardware.IMU;
+import com.qualcomm.robotcore.hardware.ImuOrientationOnRobot;
 
 import org.firstinspires.ftc.robotcore.external.Telemetry;
+import org.firstinspires.ftc.robotcore.external.navigation.AngleUnit;
+import org.firstinspires.ftc.robotcore.external.navigation.AxesOrder;
+import org.firstinspires.ftc.robotcore.external.navigation.AxesReference;
+import org.firstinspires.ftc.robotcore.external.navigation.Orientation;
+import org.firstinspires.ftc.robotcore.external.navigation.YawPitchRollAngles;
 
 import java.util.List;
 
@@ -25,6 +33,10 @@ public class RobotCommon {
     private double vx;
     private double vy;
     private double rot;
+    private IMU imu;
+    private double yaw;
+    private AbsoluteGyro gyro;
+    private double absoluteYaw;
 
     // Arm
     private DcMotorEx arm;
@@ -73,6 +85,23 @@ public class RobotCommon {
         potentiometer = hardwareMap.get(AnalogInput.class, "potentiometer");
         intakeLeft = hardwareMap.get(CRServo.class, "intakeLeft");
         intakeRight = hardwareMap.get(CRServo.class, "intakeRight");
+        imu = hardwareMap.get(IMU.class, "imuExpansion");
+
+        // Config Imu
+        IMU.Parameters imuParams = new IMU.Parameters(
+                new RevHubOrientationOnRobot(
+                    new Orientation(
+                            AxesReference.INTRINSIC,
+                            AxesOrder.ZYX,
+                            AngleUnit.DEGREES,
+                            180f,
+                            60f,
+                            0f,
+                            0
+                    )
+                )
+        );
+        gyro = new AbsoluteGyro();
 
         // Config Motors
         frontLeft.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
@@ -116,6 +145,10 @@ public class RobotCommon {
         double wheel2;
         double wheel3;
         double wheel4;
+
+        yaw = imu.getRobotYawPitchRollAngles().getYaw();
+        absoluteYaw = gyro.calculate(yaw);
+
 
         wheel1 = vx + vy + rot;
         wheel2 = (vx - vy) + rot;
@@ -167,6 +200,7 @@ public class RobotCommon {
 
     }
     public void sendTelemetry(Telemetry telemetry){
+        telemetry.addData("Yaw", absoluteYaw);
         telemetry.addData("Slide Position", slides.getCurrentPosition());
         telemetry.addData("Slide Target Position", slides.getTargetPosition());
         telemetry.addData("Arm Position", armPosition);

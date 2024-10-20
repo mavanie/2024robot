@@ -9,7 +9,6 @@ import com.qualcomm.robotcore.hardware.HardwareMap;
 import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.hardware.lynx.LynxModule;
 import com.qualcomm.robotcore.hardware.IMU;
-import com.qualcomm.robotcore.hardware.ImuOrientationOnRobot;
 
 import org.firstinspires.ftc.robotcore.external.Telemetry;
 import org.firstinspires.ftc.robotcore.external.navigation.AngleUnit;
@@ -95,12 +94,13 @@ public class RobotCommon {
                             AxesOrder.ZYX,
                             AngleUnit.DEGREES,
                             180f,
-                            60f,
                             0f,
+                            60f,
                             0
                     )
                 )
         );
+        imu.initialize(imuParams);
         gyro = new AbsoluteGyro();
 
         // Config Motors
@@ -160,6 +160,13 @@ public class RobotCommon {
         backRight.setVelocity(wheel4);
     }
 
+    public double getAbsoluteYaw() {
+        return absoluteYaw;
+    }
+    public void resetYaw() {
+        imu.resetYaw();
+    }
+
     // Arm
 
     public void moveArm(double targetPosition){
@@ -201,6 +208,11 @@ public class RobotCommon {
     }
     public void sendTelemetry(Telemetry telemetry){
         telemetry.addData("Yaw", absoluteYaw);
+        YawPitchRollAngles angles = imu.getRobotYawPitchRollAngles();
+        telemetry.addData("Raw yaw", angles.getYaw());
+        telemetry.addData("Raw pitch", angles.getPitch());
+        telemetry.addData("Raw roll", angles.getRoll());
+
         telemetry.addData("Slide Position", slides.getCurrentPosition());
         telemetry.addData("Slide Target Position", slides.getTargetPosition());
         telemetry.addData("Arm Position", armPosition);

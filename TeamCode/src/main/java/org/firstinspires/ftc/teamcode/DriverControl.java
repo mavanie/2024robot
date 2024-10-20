@@ -10,14 +10,14 @@ import org.firstinspires.ftc.teamcode.RobotCommon.IntakeOptions;
 
 
 @Config
-@TeleOp(name = "Main Robot")
-public class MainRobot extends LinearOpMode {
+@TeleOp(name = "Driver Control")
+public class DriverControl extends LinearOpMode {
     private RobotCommon common;
     // Drive
     public static int FAST_FORWARD_FACTOR = 1400;
     public static int SLOW_FORWARD_FACTOR = 1000;
-    public static int FAST_SIDEWAYS_FACTOR = 1200;
-    public static int SLOW_SIDEWAYS_FACTOR = 720;
+    public static int FAST_SIDEWAYS_FACTOR = 1400;
+    public static int SLOW_SIDEWAYS_FACTOR = 1000;
     public static int FAST_ROTATION_FACTOR = 1300;
     public static int SLOW_ROTATION_FACTOR = 900;
     // Slides
@@ -62,13 +62,20 @@ public class MainRobot extends LinearOpMode {
         // Drive
         boolean movingFastSideways = g1.a && Math.abs(g1.left_stick_x) > Math.abs(g1.left_stick_y);
         boolean movingFastForward = g1.a && Math.abs(g1.left_stick_y) > Math.abs(g1.left_stick_x);
-        double vx = movingFastSideways ? 0 : -square(g1.left_stick_y) * (g1.a ? FAST_FORWARD_FACTOR : SLOW_FORWARD_FACTOR);
-        double vy = movingFastForward ? 0 : square(g1.left_stick_x) * (g1.a ? FAST_SIDEWAYS_FACTOR : SLOW_SIDEWAYS_FACTOR);
+        double x = movingFastSideways ? 0 : -square(g1.left_stick_y) * (g1.a ? FAST_FORWARD_FACTOR : SLOW_FORWARD_FACTOR);
+        double y = movingFastForward ? 0 : square(g1.left_stick_x) * (g1.a ? FAST_SIDEWAYS_FACTOR : SLOW_SIDEWAYS_FACTOR);
         double rot = square(g1.right_trigger - g1.left_trigger) * (g1.a ? FAST_ROTATION_FACTOR : SLOW_ROTATION_FACTOR);
+        double absoluteYaw = common.getAbsoluteYaw();
+        double vx = x * Math.cos(Math.toRadians(absoluteYaw))- y * Math.sin(Math.toRadians(absoluteYaw));
+        double vy = x * Math.sin(Math.toRadians(absoluteYaw)) + y * Math.cos(Math.toRadians(absoluteYaw));
         common.setRobotSpeed(vx, vy, rot);
 
+        if (g1.back) {
+            common.resetYaw();
+        }
+
         // Slides
-        if (g2.b) {
+        if (g2.b && !g2.start) {
             common.moveSlides(RobotCommon.SLIDES_EXTENDED);
         }
         if (g2.a) {

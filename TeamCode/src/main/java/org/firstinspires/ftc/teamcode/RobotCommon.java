@@ -7,6 +7,8 @@ import com.qualcomm.robotcore.hardware.HardwareMap;
 import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.hardware.lynx.LynxModule;
 
+import org.firstinspires.ftc.robotcore.external.Telemetry;
+
 import java.util.List;
 
 @Config
@@ -26,10 +28,20 @@ public class RobotCommon {
     // Arm
     private DcMotorEx arm;
     private AnalogInput potentiometer;
-
+    private double armPosition;
+    private double armTargetPosition;
+    private double armPower;
+    public static double ARM_P = 100;
+    public static double ARM_MIN = 0.684;
+    public static double ARM_DROP = 0.9;
+    public static double ARM_HORIZONTAL = 1.4;
+    public static double ARM_GROUND = 2.094;
+    public static double ARM_MAX = 2.41;
     // Slides
     private DcMotorEx slides;
     public static int SLIDE_VELOCITY = 5000;
+    public static int SLIDES_EXTENDED = 5500;
+    public static int SLIDES_RETRACTED = 0;
 
     public RobotCommon(HardwareMap hardwareMap) {
         this.hardwareMap = hardwareMap;
@@ -71,12 +83,16 @@ public class RobotCommon {
 
         // Arm
         arm.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
-
+        armPosition = potentiometer.getVoltage();
+        armTargetPosition = armPosition;
     }
 
     public void run() {
         runDrive();
+        runArm();
     }
+
+    // wheels
 
     public void setRobotSpeed(double vx, double vy, double rot) {
     this.vx = vx;
@@ -100,21 +116,38 @@ public class RobotCommon {
         backRight.setVelocity(wheel4);
     }
 
-    public void moveArm(int targetPosition){
+    // arm
 
+    public void moveArm(double targetPosition){
+        armTargetPosition = targetPosition;
     }
-    public void moveSlide(int targetPosition){
+
+    public double getArmTargetPosition(){
+        return armTargetPosition;
+    }
+    private void runArm(){
+        armPosition = potentiometer.getVoltage();
+        armPower = (armTargetPosition - armPosition) * ARM_P;
+        arm.setPower(armPower/100);
+    }
+
+    // slide
+
+    public void moveSlides(int targetPosition){
         slides.setTargetPosition(targetPosition);
         slides.setMode(DcMotor.RunMode.RUN_TO_POSITION);
         slides.setVelocity(SLIDE_VELOCITY);
     }
-    public int getSlidePosition(){
-        return slides.getCurrentPosition();
+
+    public void sendTelemetry(Telemetry telemetry){
+        telemetry.addData("Slide Position", slides.getCurrentPosition());
+        telemetry.addData("Slide Target Position", slides.getTargetPosition());
+        telemetry.addData("Arm Position", armPosition);
+        telemetry.addData("Arm Target", armTargetPosition);
+        telemetry.addData("Arm Power", armPower);
     }
-    public int getSlideTargetPosition(){
+
+    public int getSlideTargetPosition() {
         return slides.getTargetPosition();
-    }
-    public double getPotentiometer(){
-        return potentiometer.getVoltage();
     }
 }

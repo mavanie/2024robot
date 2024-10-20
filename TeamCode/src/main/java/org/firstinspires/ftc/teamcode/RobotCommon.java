@@ -2,6 +2,7 @@ package org.firstinspires.ftc.teamcode;
 
 import com.acmerobotics.dashboard.config.Config;
 import com.qualcomm.robotcore.hardware.AnalogInput;
+import com.qualcomm.robotcore.hardware.CRServo;
 import com.qualcomm.robotcore.hardware.DcMotorEx;
 import com.qualcomm.robotcore.hardware.HardwareMap;
 import com.qualcomm.robotcore.hardware.DcMotor;
@@ -37,11 +38,19 @@ public class RobotCommon {
     public static double ARM_HORIZONTAL = 1.4;
     public static double ARM_GROUND = 2.094;
     public static double ARM_MAX = 2.41;
+
     // Slides
     private DcMotorEx slides;
     public static int SLIDE_VELOCITY = 5000;
     public static int SLIDES_EXTENDED = 5500;
     public static int SLIDES_RETRACTED = 0;
+
+    // Intake
+    private CRServo intakeLeft;
+    private CRServo intakeRight;
+    public enum IntakeOptions {
+        STOP, IN, OUT
+    }
 
     public RobotCommon(HardwareMap hardwareMap) {
         this.hardwareMap = hardwareMap;
@@ -55,13 +64,15 @@ public class RobotCommon {
         }
 
         // Init hardware
-        frontLeft = hardwareMap.get(DcMotorEx.class, "Front Left");
-        frontRight = hardwareMap.get(DcMotorEx.class, "Front Right");
-        backLeft = hardwareMap.get(DcMotorEx.class, "Back Left");
-        backRight = hardwareMap.get(DcMotorEx.class, "Back Right");
+        frontLeft = hardwareMap.get(DcMotorEx.class, "frontLeft");
+        frontRight = hardwareMap.get(DcMotorEx.class, "frontRight");
+        backLeft = hardwareMap.get(DcMotorEx.class, "backLeft");
+        backRight = hardwareMap.get(DcMotorEx.class, "backRight");
         arm = hardwareMap.get(DcMotorEx.class, "arm");
-        slides = hardwareMap.get(DcMotorEx.class,"slides");
-        potentiometer = hardwareMap.get(AnalogInput.class,"potentiometer");
+        slides = hardwareMap.get(DcMotorEx.class, "slides");
+        potentiometer = hardwareMap.get(AnalogInput.class, "potentiometer");
+        intakeLeft = hardwareMap.get(CRServo.class, "intakeLeft");
+        intakeRight = hardwareMap.get(CRServo.class, "intakeRight");
 
         // Config Motors
         frontLeft.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
@@ -92,7 +103,7 @@ public class RobotCommon {
         runArm();
     }
 
-    // wheels
+    // Wheels
 
     public void setRobotSpeed(double vx, double vy, double rot) {
     this.vx = vx;
@@ -116,7 +127,7 @@ public class RobotCommon {
         backRight.setVelocity(wheel4);
     }
 
-    // arm
+    // Arm
 
     public void moveArm(double targetPosition){
         armTargetPosition = targetPosition;
@@ -131,23 +142,35 @@ public class RobotCommon {
         arm.setPower(armPower/100);
     }
 
-    // slide
-
+    // Slide
     public void moveSlides(int targetPosition){
         slides.setTargetPosition(targetPosition);
         slides.setMode(DcMotor.RunMode.RUN_TO_POSITION);
         slides.setVelocity(SLIDE_VELOCITY);
     }
+    public int getSlideTargetPosition() {
+        return slides.getTargetPosition();
+    }
 
+    // Intake
+    public void moveIntake (IntakeOptions intakeOption){
+        if (intakeOption == IntakeOptions.OUT){
+            intakeLeft.setPower(1);
+            intakeRight.setPower(-1);
+        } else if (intakeOption == IntakeOptions.IN){
+            intakeLeft.setPower(-1);
+            intakeRight.setPower(1);
+        } else{
+            intakeLeft.setPower(0);
+            intakeRight.setPower(0);
+        }
+
+    }
     public void sendTelemetry(Telemetry telemetry){
         telemetry.addData("Slide Position", slides.getCurrentPosition());
         telemetry.addData("Slide Target Position", slides.getTargetPosition());
         telemetry.addData("Arm Position", armPosition);
         telemetry.addData("Arm Target", armTargetPosition);
         telemetry.addData("Arm Power", armPower);
-    }
-
-    public int getSlideTargetPosition() {
-        return slides.getTargetPosition();
     }
 }

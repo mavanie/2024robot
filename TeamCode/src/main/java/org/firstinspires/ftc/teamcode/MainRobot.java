@@ -6,6 +6,8 @@ import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 import com.qualcomm.robotcore.hardware.Gamepad;
 import com.acmerobotics.dashboard.FtcDashboard;
+import org.firstinspires.ftc.teamcode.RobotCommon.IntakeOptions;
+
 
 @Config
 @TeleOp(name = "Main Robot")
@@ -103,6 +105,14 @@ public class MainRobot extends LinearOpMode {
             }
             common.moveArm(pos);
         }
+        // Intake
+        if (g2.left_bumper){
+            common.moveIntake(IntakeOptions.IN);
+        } else if (g2.right_bumper){
+            common.moveIntake(IntakeOptions.OUT);
+        } else {
+            common.moveIntake(IntakeOptions.STOP);
+        }
     }
 
     private void sendTelemetry(){
@@ -113,7 +123,3 @@ public class MainRobot extends LinearOpMode {
         return amount * Math.abs(amount);
     }
 }
-
-
-
-

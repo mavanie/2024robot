@@ -70,8 +70,16 @@ public class DriverControl extends LinearOpMode {
         double vy = x * Math.sin(Math.toRadians(absoluteYaw)) + y * Math.cos(Math.toRadians(absoluteYaw));
         common.setRobotSpeed(vx, vy, rot);
 
-        if (g1.back) {
+        if (g1.guide) {
             common.resetYaw();
+        }
+
+        // Hook
+        if (g1.start){
+            common.moveHook(true);
+        }
+        if (g1.back){
+            common.moveHook(false);
         }
 
         // Slides

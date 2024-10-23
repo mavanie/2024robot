@@ -9,13 +9,13 @@ import com.qualcomm.robotcore.hardware.HardwareMap;
 import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.hardware.lynx.LynxModule;
 import com.qualcomm.robotcore.hardware.IMU;
+import com.qualcomm.robotcore.hardware.Servo;
 
 import org.firstinspires.ftc.robotcore.external.Telemetry;
 import org.firstinspires.ftc.robotcore.external.navigation.AngleUnit;
 import org.firstinspires.ftc.robotcore.external.navigation.AxesOrder;
 import org.firstinspires.ftc.robotcore.external.navigation.AxesReference;
 import org.firstinspires.ftc.robotcore.external.navigation.Orientation;
-import org.firstinspires.ftc.robotcore.external.navigation.YawPitchRollAngles;
 
 import java.util.List;
 
@@ -23,6 +23,11 @@ import java.util.List;
 
 public class RobotCommon {
     private final HardwareMap hardwareMap;
+
+    // Hook
+    private Servo hook;
+    public static double HOOK_EXTENDED = 1;
+    public static double HOOK_RETRACTED = 0;
 
     // Wheels
     private DcMotorEx frontLeft;
@@ -32,6 +37,12 @@ public class RobotCommon {
     private double vx;
     private double vy;
     private double rot;
+
+    private double frontLeftTarget;
+    private double backLeftTarget;
+    private double frontRightTarget;
+    private double backRightTarget;
+
     private IMU imu;
     private double yaw;
     private AbsoluteGyro gyro;
@@ -85,6 +96,7 @@ public class RobotCommon {
         intakeLeft = hardwareMap.get(CRServo.class, "intakeLeft");
         intakeRight = hardwareMap.get(CRServo.class, "intakeRight");
         imu = hardwareMap.get(IMU.class, "imuExpansion");
+        hook = hardwareMap.get(Servo.class, "hook");
 
         // Config Imu
         IMU.Parameters imuParams = new IMU.Parameters(
@@ -140,24 +152,19 @@ public class RobotCommon {
     this.rot = rot;
     }
 
-    private void runDrive() {
-        double wheel1;
-        double wheel2;
-        double wheel3;
-        double wheel4;
 
+    private void runDrive() {
         yaw = imu.getRobotYawPitchRollAngles().getYaw();
         absoluteYaw = gyro.calculate(yaw);
 
-
-        wheel1 = vx + vy + rot;
-        wheel2 = (vx - vy) + rot;
-        wheel3 = (vx - vy) - rot;
-        wheel4 = (vx + vy) - rot;
-        frontLeft.setVelocity(wheel1);
-        backLeft.setVelocity(wheel2);
-        frontRight.setVelocity(wheel3);
-        backRight.setVelocity(wheel4);
+        frontLeftTarget = vx + vy + rot;
+        backLeftTarget = (vx - vy) + rot;
+        frontRightTarget = (vx - vy) - rot;
+        backRightTarget = (vx + vy) - rot;
+        frontLeft.setVelocity(frontLeftTarget);
+        backLeft.setVelocity(backLeftTarget);
+        frontRight.setVelocity(frontRightTarget);
+        backRight.setVelocity(backRightTarget);
     }
 
     public double getAbsoluteYaw() {
@@ -180,6 +187,15 @@ public class RobotCommon {
         armPosition = potentiometer.getVoltage();
         armPower = (armTargetPosition - armPosition) * ARM_P;
         arm.setPower(armPower/100);
+    }
+
+    // Hook
+    public void moveHook(boolean extendHook){
+        if (extendHook){
+            hook.setPosition(HOOK_EXTENDED);
+        } else {
+            hook.setPosition(HOOK_RETRACTED);
+        }
     }
 
     // Slide
@@ -208,10 +224,15 @@ public class RobotCommon {
     }
     public void sendTelemetry(Telemetry telemetry){
         telemetry.addData("Yaw", absoluteYaw);
-        YawPitchRollAngles angles = imu.getRobotYawPitchRollAngles();
-        telemetry.addData("Raw yaw", angles.getYaw());
-        telemetry.addData("Raw pitch", angles.getPitch());
-        telemetry.addData("Raw roll", angles.getRoll());
+
+        telemetry.addData("frontLeftTarget", frontLeftTarget);
+        telemetry.addData("backLeftTarget", backLeftTarget);
+        telemetry.addData("frontRightTarget", frontRightTarget);
+        telemetry.addData("backRightTarget", backRightTarget);
+        telemetry.addData("frontLeftVelocity", frontLeft.getVelocity());
+        telemetry.addData("backLeftVelocity", backLeft.getVelocity());
+        telemetry.addData("frontRightVelocity", backLeft.getVelocity());
+        telemetry.addData("backRightVelocity", backRight.getVelocity());
 
         telemetry.addData("Slide Position", slides.getCurrentPosition());
         telemetry.addData("Slide Target Position", slides.getTargetPosition());

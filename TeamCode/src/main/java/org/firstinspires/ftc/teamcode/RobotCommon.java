@@ -7,6 +7,7 @@ import com.qualcomm.robotcore.hardware.CRServo;
 import com.qualcomm.robotcore.hardware.DcMotorEx;
 import com.qualcomm.robotcore.hardware.HardwareMap;
 import com.qualcomm.robotcore.hardware.DcMotor;
+import com.qualcomm.robotcore.hardware.DcMotor.RunMode;
 import com.qualcomm.hardware.lynx.LynxModule;
 import com.qualcomm.robotcore.hardware.IMU;
 import com.qualcomm.robotcore.hardware.Servo;
@@ -130,10 +131,11 @@ public class RobotCommon {
 
         // Config slides
         slides.setTargetPosition(slides.getCurrentPosition());
-        slides.setMode(DcMotor.RunMode.RUN_TO_POSITION);
+        slides.setMode(RunMode.RUN_TO_POSITION);
         slides.setVelocity(SLIDE_VELOCITY);
 
         // Arm
+        arm.setDirection(DcMotor.Direction.REVERSE);
         arm.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
         armPosition = potentiometer.getVoltage();
         armTargetPosition = armPosition;
@@ -172,6 +174,7 @@ public class RobotCommon {
     }
     public void resetYaw() {
         imu.resetYaw();
+        // TODO: reset gyro yaw too
     }
 
     // Arm
@@ -225,14 +228,14 @@ public class RobotCommon {
     public void sendTelemetry(Telemetry telemetry){
         telemetry.addData("Yaw", absoluteYaw);
 
-        telemetry.addData("frontLeftTarget", frontLeftTarget);
-        telemetry.addData("backLeftTarget", backLeftTarget);
-        telemetry.addData("frontRightTarget", frontRightTarget);
-        telemetry.addData("backRightTarget", backRightTarget);
-        telemetry.addData("frontLeftVelocity", frontLeft.getVelocity());
-        telemetry.addData("backLeftVelocity", backLeft.getVelocity());
-        telemetry.addData("frontRightVelocity", backLeft.getVelocity());
-        telemetry.addData("backRightVelocity", backRight.getVelocity());
+//        telemetry.addData("frontLeftTarget", frontLeftTarget);
+//        telemetry.addData("backLeftTarget", backLeftTarget);
+//        telemetry.addData("frontRightTarget", frontRightTarget);
+//        telemetry.addData("backRightTarget", backRightTarget);
+//        telemetry.addData("frontLeftVelocity", frontLeft.getVelocity());
+//        telemetry.addData("backLeftVelocity", backLeft.getVelocity());
+//        telemetry.addData("frontRightVelocity", frontRight.getVelocity());
+//        telemetry.addData("backRightVelocity", backRight.getVelocity());
 
         telemetry.addData("Slide Position", slides.getCurrentPosition());
         telemetry.addData("Slide Target Position", slides.getTargetPosition());

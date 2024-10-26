@@ -57,16 +57,17 @@ public class RobotCommon {
     private double armPower;
     public static double ARM_P = 100;
     public static double ARM_MIN = 0.684;
-    public static double ARM_DROP = 0.9;
+    public static double ARM_DROP = 0.7;
     public static double ARM_HORIZONTAL = 1.4;
-    public static double ARM_GROUND = 2.094;
+    public static double ARM_GROUND = 1.8;
     public static double ARM_MAX = 2.41;
 
     // Slides
     private DcMotorEx slides;
     public static int SLIDE_VELOCITY = 5000;
-    public static int SLIDES_EXTENDED = 5500;
+    public static int SLIDES_EXTENDED = 4035;
     public static int SLIDES_RETRACTED = 0;
+    public static int SLIDES_MAX = 5500;
 
     // Intake
     private CRServo intakeLeft;

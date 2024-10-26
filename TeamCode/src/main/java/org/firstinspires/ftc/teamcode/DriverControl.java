@@ -91,8 +91,8 @@ public class DriverControl extends LinearOpMode {
         }
         if (Math.abs(g2.right_stick_y) > 0.1){
             int pos = common.getSlideTargetPosition() + (int)Math.round(square(g2.right_stick_y) * SLIDES_CONTROLS);
-            if (pos > RobotCommon.SLIDES_EXTENDED){
-                pos = RobotCommon.SLIDES_EXTENDED;
+            if (pos > RobotCommon.SLIDES_MAX){
+                pos = RobotCommon.SLIDES_MAX;
             }
             if (pos < RobotCommon.SLIDES_RETRACTED){
                 pos = RobotCommon.SLIDES_RETRACTED;

@@ -193,6 +193,10 @@ public class RobotCommon {
         arm.setPower(armPower/100);
     }
 
+    public void stopArm(){
+        moveArm(armPosition);
+    }
+
     // Hook
     public void moveHook(boolean extendHook){
         if (extendHook){
@@ -210,6 +214,9 @@ public class RobotCommon {
     }
     public int getSlideTargetPosition() {
         return slides.getTargetPosition();
+    }
+    public void stopSlides(){
+        moveSlides(slides.getCurrentPosition());
     }
 
     // Intake

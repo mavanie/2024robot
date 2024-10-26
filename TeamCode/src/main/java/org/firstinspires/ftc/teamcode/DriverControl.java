@@ -53,6 +53,8 @@ public class DriverControl extends LinearOpMode {
         // Gamepad
         g1 = new Gamepad();
         g2 = new Gamepad();
+
+        sendTelemetry();
     }
 
     private void controls() {
@@ -75,10 +77,10 @@ public class DriverControl extends LinearOpMode {
         }
 
         // Hook
-        if (g1.start){
+        if (g1.back){
             common.moveHook(true);
         }
-        if (g1.back){
+        if (g1.start){
             common.moveHook(false);
         }
 
@@ -127,6 +129,11 @@ public class DriverControl extends LinearOpMode {
             common.moveIntake(IntakeOptions.OUT);
         } else {
             common.moveIntake(IntakeOptions.STOP);
+        }
+        // Safe Stop
+        if (g2.start){
+            common.stopArm();
+            common.stopSlides();
         }
     }
 

@@ -14,11 +14,9 @@ import org.firstinspires.ftc.teamcode.RobotCommon.IntakeOptions;
 public class DriverControl extends LinearOpMode {
     private RobotCommon common;
     // Drive
-    public static int FAST_FORWARD_FACTOR = 1400;
-    public static int SLOW_FORWARD_FACTOR = 1000;
-    public static int FAST_SIDEWAYS_FACTOR = 1400;
-    public static int SLOW_SIDEWAYS_FACTOR = 1000;
-    public static int FAST_ROTATION_FACTOR = 1300;
+    public static int FAST_FACTOR = 2000;
+    public static int SLOW_FACTOR = 1000;
+    public static int FAST_ROTATION_FACTOR = 1700;
     public static int SLOW_ROTATION_FACTOR = 900;
     // Slides
     public static double SLIDES_CONTROLS = -100;
@@ -62,11 +60,12 @@ public class DriverControl extends LinearOpMode {
         g2.copy(gamepad2);
 
         // Drive
-        boolean movingFastSideways = g1.a && Math.abs(g1.left_stick_x) > Math.abs(g1.left_stick_y);
-        boolean movingFastForward = g1.a && Math.abs(g1.left_stick_y) > Math.abs(g1.left_stick_x);
-        double x = movingFastSideways ? 0 : -square(g1.left_stick_y) * (g1.a ? FAST_FORWARD_FACTOR : SLOW_FORWARD_FACTOR);
-        double y = movingFastForward ? 0 : square(g1.left_stick_x) * (g1.a ? FAST_SIDEWAYS_FACTOR : SLOW_SIDEWAYS_FACTOR);
-        double rot = square(g1.right_trigger - g1.left_trigger) * (g1.a ? FAST_ROTATION_FACTOR : SLOW_ROTATION_FACTOR);
+        boolean movingFast = g1.a || g1.x || g1.y || g1.b;
+        boolean movingOnlySideways = (g1.a || g1.x) && Math.abs(g1.left_stick_x) > Math.abs(g1.left_stick_y);
+        boolean movingOnlyForward = (g1.a || g1.x) && Math.abs(g1.left_stick_y) > Math.abs(g1.left_stick_x);
+        double x = movingOnlySideways ? 0 : -square(g1.left_stick_y) * (movingFast ? FAST_FACTOR : SLOW_FACTOR);
+        double y = movingOnlyForward ? 0 : square(g1.left_stick_x) * (movingFast ? FAST_FACTOR : SLOW_FACTOR);
+        double rot = square(g1.right_trigger - g1.left_trigger) * (movingFast ? FAST_ROTATION_FACTOR : SLOW_ROTATION_FACTOR);
         double absoluteYaw = common.getAbsoluteYaw();
         double vx = x * Math.cos(Math.toRadians(absoluteYaw))- y * Math.sin(Math.toRadians(absoluteYaw));
         double vy = x * Math.sin(Math.toRadians(absoluteYaw)) + y * Math.cos(Math.toRadians(absoluteYaw));

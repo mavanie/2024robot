@@ -18,6 +18,9 @@ import org.firstinspires.ftc.robotcore.external.navigation.AxesOrder;
 import org.firstinspires.ftc.robotcore.external.navigation.AxesReference;
 import org.firstinspires.ftc.robotcore.external.navigation.Orientation;
 
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collections;
 import java.util.List;
 
 @Config
@@ -27,8 +30,8 @@ public class RobotCommon {
 
     // Hook
     private Servo hook;
-    public static double HOOK_EXTENDED = 1;
-    public static double HOOK_RETRACTED = 0;
+    public static double HOOK_EXTENDED = 0.35;
+    public static double HOOK_RETRACTED = 1;
 
     // Wheels
     private DcMotorEx frontLeft;
@@ -55,12 +58,22 @@ public class RobotCommon {
     private double armPosition;
     private double armTargetPosition;
     private double armPower;
-    public static double ARM_P = 100;
+    public static double ARM_P_UP = 300;
+    public static double ARM_P_DOWN = 200;
+    public static double ARM_POWER_LIMIT = 10;
+    public static double ARM_D = 500;
+    private double armPPart = 0;
+    private double armDPart = 0;
     public static double ARM_MIN = 0.684;
     public static double ARM_DROP = 0.7;
-    public static double ARM_HORIZONTAL = 1.4;
+    public static double ARM_HORIZONTAL = 1.55;
     public static double ARM_GROUND = 1.8;
-    public static double ARM_MAX = 2.41;
+    public static double ARM_MAX = 2.8;
+    private List<Double> oldArmPositions;
+    private List<Double> speedFactors;
+    private double armSpeed = 0;
+    public static double armLimitedPower;
+    public static double ARM_D_THERESHOLD = 0.05;
 
     // Slides
     private DcMotorEx slides;
@@ -124,6 +137,7 @@ public class RobotCommon {
         backRight.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
         frontRight.setDirection(DcMotor.Direction.REVERSE);
         backLeft.setDirection(DcMotor.Direction.REVERSE);
+
         // Enable Encoders
         frontLeft.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
         backLeft.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
@@ -140,6 +154,8 @@ public class RobotCommon {
         arm.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
         armPosition = potentiometer.getVoltage();
         armTargetPosition = armPosition;
+        speedFactors = Arrays.asList(-0.083, -0.059, -0.035, -0.012, 0.012, 0.035, 0.059, 0.083);
+        oldArmPositions = new ArrayList<>(Collections.nCopies(speedFactors.size(), 0.0));
     }
 
     public void run() {
@@ -189,8 +205,22 @@ public class RobotCommon {
     }
     private void runArm(){
         armPosition = potentiometer.getVoltage();
-        armPower = (armTargetPosition - armPosition) * ARM_P;
-        arm.setPower(armPower/100);
+
+        oldArmPositions.add(armPosition);
+        // Remove oldest item from list
+        oldArmPositions.remove(0);
+        armSpeed = 0;
+
+        for (int i = 0; i < oldArmPositions.size(); i += 1) {
+            armSpeed += oldArmPositions.get(i) * speedFactors.get(i);
+        }
+        double armError = armTargetPosition - armPosition;
+        double p = armError > 0 ? ARM_P_DOWN : ARM_P_UP;
+        armPPart = p * armError;
+        armDPart = Math.abs(armError) >= ARM_D_THERESHOLD ? ARM_D * armSpeed : 0;
+        armPower = Math.min(Math.max(armPPart - armDPart, -100), 100);
+        armLimitedPower = Math.min(Math.max(armPower, armLimitedPower - ARM_POWER_LIMIT), armLimitedPower + ARM_POWER_LIMIT);
+        arm.setPower(armLimitedPower / 100);
     }
 
     public void stopArm(){
@@ -250,5 +280,9 @@ public class RobotCommon {
         telemetry.addData("Arm Position", armPosition);
         telemetry.addData("Arm Target", armTargetPosition);
         telemetry.addData("Arm Power", armPower);
+        telemetry.addData("Arm Speed", armSpeed);
+        telemetry.addData("Arm D", armDPart);
+        telemetry.addData("Arm P", armPPart);
+        telemetry.addData("Arm Limited Power", armLimitedPower);
     }
 }

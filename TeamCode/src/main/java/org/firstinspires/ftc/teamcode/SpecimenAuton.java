@@ -8,8 +8,8 @@ import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.util.ElapsedTime;
 
 @Config
-@Autonomous(name = "BasketAuton", preselectTeleOp = "DriverControl")
-public class BasketAuton extends LinearOpMode {
+@Autonomous(name = "SpecimenAuton", preselectTeleOp = "DriverControl")
+public class SpecimenAuton extends LinearOpMode {
 
     private RobotCommon common;
     private ElapsedTime time = new ElapsedTime();
@@ -20,59 +20,37 @@ public class BasketAuton extends LinearOpMode {
     public static double T4 = 2;
     public static double T5 = 3;
     public static double T6 = 0.3;
-    public static double T7 = 2;
-    public static double T8 = 2;
-    public static double T9 = 2.2;
-    public static double T10  = 3.2;
-    public static double T11 = 2;
-    public static double T12 = 2;
     public static double VX1 = 500;
-    public static double VY1 = 300;
-    public static double ROT1 = -250;
     public static double VX2 = -500;
-    public static double ROT3 = -800;
-    public static double VY4 = -500;
-    public static double A1 = 1.12;
-    public static int S1 = 4300;
-
+    public static double ARM_SPECIMEN = 0.7;
+    public static double SLIDE_SPECIMEN = 1000;
+    public static double ARM_CLIP = 1.2;
+    public static double VX3 = -500;
+    public static double VY3 = 500;
     @Override
     public void runOpMode() throws InterruptedException {
         initialize();
         waitForStart();
         if (opModeIsActive()) {
             step = "1, raise arm";
-            common.moveArm(RobotCommon.ARM_DROP);
+            common.moveArm(ARM_SPECIMEN);
             wait(T1);
             step = "2, extend slide and move";
-            common.moveSlides(RobotCommon.SLIDES_EXTENDED);
-            common.setRobotSpeed(VX1, VY1, ROT1);
+            common.moveSlides(SLIDE_SPECIMEN);
+            common.setRobotSpeed(VX1, 0, 0);
             wait(T2);
             common.setRobotSpeed(0, 0, 0);
             wait(T3);
-            step = "3, drop sample";
-            common.moveIntake(RobotCommon.IntakeOptions.OUT);
+            step = "3, clip specimen";
+            common.moveArm(ARM_CLIP);
             wait(T4);
             step = "4, move back";
             common.setRobotSpeed(VX2, 0, 0);
             wait(T5);
-            common.setRobotSpeed(0, 0, 0);
+            step = "5, go park";
+            common.setRobotSpeed(VX3, VY3, 0);
             wait(T6);
-            step = "5, retract slides";
-            common.moveIntake(RobotCommon.IntakeOptions.STOP);
-            common.moveSlides(RobotCommon.SLIDES_RETRACTED);
-            wait(T7);
-            step = "6, move to end";
-            common.setRobotSpeed(0, 0, ROT3);
-            wait(T9);
-            common.setRobotSpeed(0, VY4, 0);
-            wait(T10);
             common.setRobotSpeed(0, 0, 0);
-            step = "7, lower arm";
-            common.moveArm(A1);
-            wait(T11);
-            step = "8, extend slide";
-            common.moveSlides(S1);
-            wait(T12);
         }
     }
     private void wait(double t) throws InterruptedException{

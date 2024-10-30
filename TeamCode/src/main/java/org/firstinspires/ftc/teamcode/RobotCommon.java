@@ -5,6 +5,7 @@ import com.qualcomm.hardware.rev.RevHubOrientationOnRobot;
 import com.qualcomm.robotcore.hardware.AnalogInput;
 import com.qualcomm.robotcore.hardware.CRServo;
 import com.qualcomm.robotcore.hardware.DcMotorEx;
+import com.qualcomm.robotcore.hardware.DcMotorSimple;
 import com.qualcomm.robotcore.hardware.HardwareMap;
 import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.hardware.DcMotor.RunMode;
@@ -58,7 +59,7 @@ public class RobotCommon {
     private double armPosition;
     private double armTargetPosition;
     private double armPower;
-    public static double ARM_P_UP = 300;
+    public static double ARM_P_UP = 500;
     public static double ARM_P_DOWN = 200;
     public static double ARM_POWER_LIMIT = 10;
     public static double ARM_D = 500;
@@ -66,7 +67,7 @@ public class RobotCommon {
     private double armDPart = 0;
     public static double ARM_MIN = 0.684;
     public static double ARM_DROP = 0.7;
-    public static double ARM_HORIZONTAL = 1.55;
+    public static double ARM_HORIZONTAL = 1.6;
     public static double ARM_GROUND = 1.8;
     public static double ARM_MAX = 2.8;
     private List<Double> oldArmPositions;
@@ -80,7 +81,7 @@ public class RobotCommon {
     public static int SLIDE_VELOCITY = 5000;
     public static int SLIDES_EXTENDED = 4035;
     public static int SLIDES_RETRACTED = 0;
-    public static int SLIDES_MAX = 5500;
+    public static int SLIDES_MAX = 4850;
 
     // Intake
     private CRServo intakeLeft;
@@ -116,15 +117,15 @@ public class RobotCommon {
         // Config Imu
         IMU.Parameters imuParams = new IMU.Parameters(
                 new RevHubOrientationOnRobot(
-                    new Orientation(
-                            AxesReference.INTRINSIC,
-                            AxesOrder.ZYX,
-                            AngleUnit.DEGREES,
-                            180f,
-                            0f,
-                            60f,
-                            0
-                    )
+                        new Orientation(
+                                AxesReference.INTRINSIC,
+                                AxesOrder.ZYX,
+                                AngleUnit.DEGREES,
+                                180f,
+                                0f,
+                                60f,
+                                0
+                        )
                 )
         );
         imu.initialize(imuParams);
@@ -148,14 +149,14 @@ public class RobotCommon {
         slides.setTargetPosition(slides.getCurrentPosition());
         slides.setMode(RunMode.RUN_TO_POSITION);
         slides.setVelocity(SLIDE_VELOCITY);
-
+        slides.setDirection(DcMotorSimple.Direction.REVERSE);
         // Arm
         arm.setDirection(DcMotor.Direction.REVERSE);
         arm.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
         armPosition = potentiometer.getVoltage();
         armTargetPosition = armPosition;
         speedFactors = Arrays.asList(-0.083, -0.059, -0.035, -0.012, 0.012, 0.035, 0.059, 0.083);
-        oldArmPositions = new ArrayList<>(Collections.nCopies(speedFactors.size(), 0.0));
+        oldArmPositions = new ArrayList<>(Collections.nCopies(speedFactors.size(), armPosition));
     }
 
     public void run() {
@@ -166,9 +167,9 @@ public class RobotCommon {
     // Wheels
 
     public void setRobotSpeed(double vx, double vy, double rot) {
-    this.vx = vx;
-    this.vy = vy;
-    this.rot = rot;
+        this.vx = vx;
+        this.vy = vy;
+        this.rot = rot;
     }
 
 

@@ -8,21 +8,21 @@ import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.util.ElapsedTime;
 
 @Config
-@Autonomous(name = "BasketAuton", preselectTeleOp = "DriverControl")
+@Autonomous(name = "BasketAuton", preselectTeleOp = "DriverControl" )
 public class BasketAuton extends LinearOpMode {
 
     private RobotCommon common;
     private ElapsedTime time = new ElapsedTime();
     private String step = "Basket Auton Ready";
     public static double T1 = 2;
-    public static double T2 = 2;
+    public static double T2 = 1.8;
     public static double T3 = 0.3;
     public static double T4 = 2;
-    public static double T5 = 3;
+    public static double T5 = 2.5;
     public static double T6 = 0.3;
     public static double T7 = 2;
     public static double T8 = 2;
-    public static double T9 = 2.2;
+    public static double T9 = 2.3;
     public static double T10  = 3.2;
     public static double T11 = 2;
     public static double T12 = 2;

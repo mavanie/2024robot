@@ -10,7 +10,7 @@ import org.firstinspires.ftc.teamcode.RobotCommon.IntakeOptions;
 
 
 @Config
-@TeleOp(name = "Driver Control")
+@TeleOp(name = "DriverControl")
 public class DriverControl extends LinearOpMode {
     private RobotCommon common;
     // Drive

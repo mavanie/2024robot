@@ -25,7 +25,7 @@ public class SpecimenAuton extends LinearOpMode {
     public static double ARM_SPECIMEN = 0.7;
     public static int SLIDE_SPECIMEN = 1000;
     public static double ARM_CLIP = 1.2;
-    public static double VX3 = -500;
+    public static double VX3 = -100;
     public static double VY3 = 500;
     @Override
     public void runOpMode() throws InterruptedException {

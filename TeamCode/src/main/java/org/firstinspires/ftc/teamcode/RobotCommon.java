@@ -249,6 +249,10 @@ public class RobotCommon {
     public void stopSlides(){
         moveSlides(slides.getCurrentPosition());
     }
+    public void resetSlides(){
+        slides.setMode(RunMode.STOP_AND_RESET_ENCODER);
+        moveSlides(0);
+    }
 
     // Intake
     public void moveIntake (IntakeOptions intakeOption){
@@ -267,14 +271,14 @@ public class RobotCommon {
     public void sendTelemetry(Telemetry telemetry){
         telemetry.addData("Yaw", absoluteYaw);
 
-//        telemetry.addData("frontLeftTarget", frontLeftTarget);
-//        telemetry.addData("backLeftTarget", backLeftTarget);
-//        telemetry.addData("frontRightTarget", frontRightTarget);
-//        telemetry.addData("backRightTarget", backRightTarget);
-//        telemetry.addData("frontLeftVelocity", frontLeft.getVelocity());
-//        telemetry.addData("backLeftVelocity", backLeft.getVelocity());
-//        telemetry.addData("frontRightVelocity", frontRight.getVelocity());
-//        telemetry.addData("backRightVelocity", backRight.getVelocity());
+        telemetry.addData("frontLeftTarget", frontLeftTarget);
+        telemetry.addData("backLeftTarget", backLeftTarget);
+        telemetry.addData("frontRightTarget", frontRightTarget);
+        telemetry.addData("backRightTarget", backRightTarget);
+        telemetry.addData("frontLeftVelocity", frontLeft.getVelocity());
+        telemetry.addData("backLeftVelocity", backLeft.getVelocity());
+        telemetry.addData("frontRightVelocity", frontRight.getVelocity());
+        telemetry.addData("backRightVelocity", backRight.getVelocity());
 
         telemetry.addData("Slide Position", slides.getCurrentPosition());
         telemetry.addData("Slide Target Position", slides.getTargetPosition());

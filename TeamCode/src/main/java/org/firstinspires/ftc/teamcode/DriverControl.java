@@ -26,6 +26,8 @@ public class DriverControl extends LinearOpMode {
     // Gamepads
     public Gamepad g1;
     public Gamepad g2;
+    public Gamepad g1old;
+    public Gamepad g2old;
 
 
     @Override
@@ -51,11 +53,15 @@ public class DriverControl extends LinearOpMode {
         // Gamepad
         g1 = new Gamepad();
         g2 = new Gamepad();
+        g1old = new Gamepad();
+        g2old = new Gamepad();
 
         sendTelemetry();
     }
 
     private void controls() {
+        g1old.copy(g1);
+        g2old.copy(g2);
         g1.copy(gamepad1);
         g2.copy(gamepad2);
 
@@ -95,10 +101,13 @@ public class DriverControl extends LinearOpMode {
             if (pos > RobotCommon.SLIDES_MAX){
                 pos = RobotCommon.SLIDES_MAX;
             }
-            if (pos < RobotCommon.SLIDES_RETRACTED){
+            if (pos < RobotCommon.SLIDES_RETRACTED && !g2.guide){
                 pos = RobotCommon.SLIDES_RETRACTED;
             }
             common.moveSlides(pos);
+        }
+        if (g2old.guide && !g2.guide){
+            common.resetSlides();
         }
 
         // Arm

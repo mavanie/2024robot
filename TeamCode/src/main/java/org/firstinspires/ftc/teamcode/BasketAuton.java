@@ -27,8 +27,8 @@ public class BasketAuton extends LinearOpMode {
     public static double T11 = 2;
     public static double T12 = 2;
     public static double VX1 = 500;
-    public static double VY1 = 300;
-    public static double ROT1 = -250;
+    public static double VY1 = 280;
+    public static double ROT1 = -280;
     public static double VX2 = -500;
     public static double ROT3 = -800;
     public static double VY4 = -500;

@@ -36,6 +36,7 @@ public final class TuningOpModes {
     public static final Class<?> DRIVE_CLASS = MecanumDrive.class;
 
     public static final String GROUP = "quickstart";
+    // TODO: set DISABLED = true when we're done tuning to decrease number of op modes
     public static final boolean DISABLED = false;
 
     private TuningOpModes() {}

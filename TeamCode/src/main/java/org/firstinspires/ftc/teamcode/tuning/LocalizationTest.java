@@ -1,6 +1,8 @@
 package org.firstinspires.ftc.teamcode.tuning;
 
 import com.acmerobotics.dashboard.FtcDashboard;
+import com.acmerobotics.dashboard.canvas.Canvas;
+import com.acmerobotics.dashboard.config.Config;
 import com.acmerobotics.dashboard.telemetry.MultipleTelemetry;
 import com.acmerobotics.dashboard.telemetry.TelemetryPacket;
 import com.acmerobotics.roadrunner.Pose2d;
@@ -46,8 +48,12 @@ public class LocalizationTest extends LinearOpMode {
                 telemetry.update();
 
                 TelemetryPacket packet = new TelemetryPacket();
-                packet.fieldOverlay().setStroke("#3F51B5");
+                // match our field orientation
+                Canvas c = packet.fieldOverlay();
+                c.setRotation(Math.toRadians(-90)).setTranslation(0, 72);
+                c.setStroke("#3F51B5");
                 Drawing.drawRobot(packet.fieldOverlay(), drive.pose);
+                c.strokeLine(0, 0, 24, 48);
                 FtcDashboard.getInstance().sendTelemetryPacket(packet);
             }
         } else if (TuningOpModes.DRIVE_CLASS.equals(TankDrive.class)) {

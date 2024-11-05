@@ -2,6 +2,7 @@ package org.firstinspires.ftc.teamcode;
 
 import com.acmerobotics.dashboard.config.Config;
 import com.acmerobotics.roadrunner.Pose2d;
+import com.acmerobotics.roadrunner.SequentialAction;
 import com.acmerobotics.roadrunner.TrajectoryActionBuilder;
 import com.acmerobotics.roadrunner.Vector2d;
 import com.acmerobotics.roadrunner.ftc.Actions;
@@ -14,6 +15,8 @@ public class RoadRunnerSample extends LinearOpMode {
 
     @Override
     public void runOpMode() throws InterruptedException {
+        RobotCommon common = new RobotCommon(hardwareMap);
+        common.initialize();
 
         Pose2d initialPose = new Pose2d(0, 0, 0);
         MecanumDrive drive = new MecanumDrive(hardwareMap, initialPose);
@@ -28,6 +31,10 @@ public class RoadRunnerSample extends LinearOpMode {
         waitForStart();
         if (isStopRequested()) return;
 
-        Actions.runBlocking(tab1.build());
+        Actions.runBlocking(new SequentialAction(
+                tab1.build(),
+                common.doMoveIntake(RobotCommon.IntakeOptions.OUT)
+                )
+                );
     }
 }

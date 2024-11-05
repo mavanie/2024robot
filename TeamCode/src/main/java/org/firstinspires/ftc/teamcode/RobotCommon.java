@@ -1,6 +1,10 @@
 package org.firstinspires.ftc.teamcode;
 
+import androidx.annotation.NonNull;
+
 import com.acmerobotics.dashboard.config.Config;
+import com.acmerobotics.dashboard.telemetry.TelemetryPacket;
+import com.acmerobotics.roadrunner.Action;
 import com.qualcomm.hardware.rev.RevHubOrientationOnRobot;
 import com.qualcomm.robotcore.hardware.AnalogInput;
 import com.qualcomm.robotcore.hardware.CRServo;
@@ -266,8 +270,24 @@ public class RobotCommon {
             intakeLeft.setPower(0);
             intakeRight.setPower(0);
         }
-
     }
+
+    public class MoveIntakeAction implements Action {
+        private IntakeOptions intakeOption;
+        public MoveIntakeAction(IntakeOptions intakeOption){
+            this.intakeOption = intakeOption;
+        }
+        @Override
+        public boolean run(@NonNull TelemetryPacket telemetryPacket) {
+            moveIntake(intakeOption);
+            return false;
+        }
+    }
+
+    public Action doMoveIntake(IntakeOptions intakeOption){
+        return new MoveIntakeAction(intakeOption);
+    }
+
     public void sendTelemetry(Telemetry telemetry){
         telemetry.addData("Yaw", absoluteYaw);
 

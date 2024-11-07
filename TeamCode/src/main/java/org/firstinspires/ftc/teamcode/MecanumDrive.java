@@ -40,6 +40,9 @@ import com.qualcomm.robotcore.hardware.IMU;
 import com.qualcomm.robotcore.hardware.VoltageSensor;
 
 import org.firstinspires.ftc.robotcore.external.navigation.AngleUnit;
+import org.firstinspires.ftc.robotcore.external.navigation.AxesOrder;
+import org.firstinspires.ftc.robotcore.external.navigation.AxesReference;
+import org.firstinspires.ftc.robotcore.external.navigation.Orientation;
 import org.firstinspires.ftc.robotcore.external.navigation.YawPitchRollAngles;
 import org.firstinspires.ftc.teamcode.messages.DriveCommandMessage;
 import org.firstinspires.ftc.teamcode.messages.MecanumCommandMessage;
@@ -63,14 +66,14 @@ public final class MecanumDrive {
                 RevHubOrientationOnRobot.UsbFacingDirection.FORWARD;
 
         // drive model parameters
-        public double inPerTick = 0.0010574263868554;
-        public double lateralInPerTick = 0.000949656097604762;
-        public double trackWidthTicks = 15928.553576806593;
+        public double inPerTick = 0.0010573950695816;
+        public double lateralInPerTick = 0.0007823230013101544;
+        public double trackWidthTicks = 14710.24566628871;
 
         // feedforward parameters (in tick units)
-        public double kS = 0.52474061966084;
-        public double kV = 0.0002621367706947919;
-        public double kA = 0.00003;
+        public double kV = 0.0002063841186696344;
+        public double kS = 1.0085815888673517;
+        public double kA = 0.00004;
 
         // path profile parameters (in inches)
         public double maxWheelVel = 50;
@@ -234,7 +237,16 @@ public final class MecanumDrive {
         // TODO: make sure your config has an IMU with this name (can be BNO or BHI)
         //   see https://ftc-docs.firstinspires.org/en/latest/hardware_and_software_configuration/configuring/index.html
         lazyImu = new LazyImu(hardwareMap, "imu", new RevHubOrientationOnRobot(
-                PARAMS.logoFacingDirection, PARAMS.usbFacingDirection));
+                new Orientation(
+                        AxesReference.INTRINSIC,
+                        AxesOrder.ZYX,
+                        AngleUnit.DEGREES,
+                        180f,
+                        0f,
+                        60f,
+                        0
+                )
+        ));
 
         voltageSensor = hardwareMap.voltageSensor.iterator().next();
 

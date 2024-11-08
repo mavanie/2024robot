@@ -168,6 +168,10 @@ public class RobotCommon {
         runArm();
     }
 
+    public void runAuton() {
+        runArm();
+    }
+
     // Wheels
 
     public void setRobotSpeed(double vx, double vy, double rot) {

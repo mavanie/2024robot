@@ -257,6 +257,24 @@ public class RobotCommon {
         slides.setMode(RunMode.STOP_AND_RESET_ENCODER);
         moveSlides(0);
     }
+    public class MoveSlidesAction implements Action{
+        private boolean firstRun = true;
+        private final int targetPosition;
+        public MoveSlidesAction(int targetPosition){
+            this.targetPosition = targetPosition;
+        }
+        @Override
+        public boolean run(@NonNull TelemetryPacket telemetryPacket) {
+            if (firstRun){
+                moveSlides(targetPosition);
+                firstRun = false;
+            }
+            return Math.abs(targetPosition - slides.getCurrentPosition()) > 5;
+        }
+    }
+    public Action doMoveSlides(int targetPosition){
+        return new MoveSlidesAction(targetPosition);
+    }
 
     // Intake
     public void moveIntake (IntakeOptions intakeOption){

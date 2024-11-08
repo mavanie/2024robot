@@ -232,6 +232,24 @@ public class RobotCommon {
         moveArm(armPosition);
     }
 
+    public class MoveArmAction implements Action{
+        private boolean firstRun = true;
+        private final double targetPosition;
+        public MoveArmAction(double targetPosition){
+            this.targetPosition = targetPosition;
+        }
+        @Override
+        public boolean run(@NonNull TelemetryPacket telemetryPacket) {
+            if (firstRun){
+                moveArm(targetPosition);
+                firstRun = false;
+            }
+            return Math.abs(targetPosition - armPosition) > 0.1;
+        }
+    }
+    public Action doMoveArm(double targetPosition){
+        return new MoveArmAction(targetPosition);
+    }
     // Hook
     public void moveHook(boolean extendHook){
         if (extendHook){

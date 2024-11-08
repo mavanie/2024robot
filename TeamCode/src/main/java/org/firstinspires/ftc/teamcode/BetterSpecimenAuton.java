@@ -41,22 +41,30 @@ public class BetterSpecimenAuton extends LinearOpMode {
 
         TrajectoryActionBuilder moveToChamber = drive.actionBuilder(initialPose)
                         .strafeTo(new Vector2d(CHAMBER_X, CHAMBER_Y));
+//        .splineTo(new Vector2d(36, 12), Math.toRadians(90));
 
-        TrajectoryActionBuilder moveBack = moveToChamber.fresh()
-                .waitSeconds(T_CLIP)
-                .strafeTo(new Vector2d(BACK_X, BACK_Y));
+//        TrajectoryActionBuilder moveBack = moveToChamber.fresh()
+//                .waitSeconds(T_CLIP)
+//                .strafeTo(new Vector2d(BACK_X, BACK_Y));
 
         waitForStart();
         if (opModeIsActive()) {
             runBlocking(new SequentialAction(
-                common.doMoveArm(ARM_SPECIMEN),
-                moveToChamber.build(),
-                common.doMoveSlides(SLIDE_SPECIMEN),
+//                common.doMoveArm(ARM_SPECIMEN),
+                moveToChamber.build()
+//                common.doMoveSlides(SLIDE_SPECIMEN)
+            ));
+
+            TrajectoryActionBuilder moveBack2 = drive.actionBuilder(drive.pose)
+                    .waitSeconds(T_CLIP)
+                    .strafeTo(new Vector2d(BACK_X, BACK_Y));
+
+            runBlocking(
                 new ParallelAction(
                     common.doMoveArm(ARM_CLIP),
-                    moveBack.build()
+                    moveBack2.build()
                 )
-            ));
+            );
         }
     }
 
@@ -70,6 +78,8 @@ public class BetterSpecimenAuton extends LinearOpMode {
     public void runBlocking(Action action) {
         FtcDashboard dash = FtcDashboard.getInstance();
         Canvas previewCanvas = new Canvas();
+        // apply our coordinate system
+        previewCanvas.setRotation(Math.toRadians(-90)).setTranslation(0, 72);
         action.preview(previewCanvas);
 
         boolean running = true;

@@ -331,14 +331,14 @@ public class RobotCommon {
     public void sendTelemetry(Telemetry telemetry){
         telemetry.addData("Yaw", absoluteYaw);
 
-        telemetry.addData("frontLeftTarget", frontLeftTarget);
-        telemetry.addData("backLeftTarget", backLeftTarget);
-        telemetry.addData("frontRightTarget", frontRightTarget);
-        telemetry.addData("backRightTarget", backRightTarget);
-        telemetry.addData("frontLeftVelocity", frontLeft.getVelocity());
-        telemetry.addData("backLeftVelocity", backLeft.getVelocity());
-        telemetry.addData("frontRightVelocity", frontRight.getVelocity());
-        telemetry.addData("backRightVelocity", backRight.getVelocity());
+//        telemetry.addData("frontLeftTarget", frontLeftTarget);
+//        telemetry.addData("backLeftTarget", backLeftTarget);
+//        telemetry.addData("frontRightTarget", frontRightTarget);
+//        telemetry.addData("backRightTarget", backRightTarget);
+//        telemetry.addData("frontLeftVelocity", frontLeft.getVelocity());
+//        telemetry.addData("backLeftVelocity", backLeft.getVelocity());
+//        telemetry.addData("frontRightVelocity", frontRight.getVelocity());
+//        telemetry.addData("backRightVelocity", backRight.getVelocity());
 
         telemetry.addData("Slide Position", slides.getCurrentPosition());
         telemetry.addData("Slide Target Position", slides.getTargetPosition());

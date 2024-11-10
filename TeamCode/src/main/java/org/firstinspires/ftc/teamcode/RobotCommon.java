@@ -71,7 +71,7 @@ public class RobotCommon {
     private double armDPart = 0;
     public static double ARM_MIN = 0.684;
     public static double ARM_DROP = 0.7;
-    public static double ARM_HORIZONTAL = 1.6;
+    public static double ARM_HORIZONTAL = 1.5;
     public static double ARM_GROUND = 1.8;
     public static double ARM_MAX = 2.8;
     private List<Double> oldArmPositions;
@@ -349,5 +349,25 @@ public class RobotCommon {
         telemetry.addData("Arm D", armDPart);
         telemetry.addData("Arm P", armPPart);
         telemetry.addData("Arm Limited Power", armLimitedPower);
+    }
+
+    public void sendTelemetryAuton(TelemetryPacket packet){
+        packet.put("Yaw", absoluteYaw);
+
+        packet.put("frontLeftVelocity", frontLeft.getVelocity());
+        packet.put("backLeftVelocity", backLeft.getVelocity());
+        packet.put("frontRightVelocity", frontRight.getVelocity());
+        packet.put("backRightVelocity", backRight.getVelocity());
+
+        packet.put("Slide Position", slides.getCurrentPosition());
+        packet.put("Slide Target Position", slides.getTargetPosition());
+
+        packet.put("Arm Position", armPosition);
+        packet.put("Arm Target", armTargetPosition);
+        packet.put("Arm Power", armPower);
+        packet.put("Arm Speed", armSpeed);
+        packet.put("Arm D", armDPart);
+        packet.put("Arm P", armPPart);
+        packet.put("Arm Limited Power", armLimitedPower);
     }
 }

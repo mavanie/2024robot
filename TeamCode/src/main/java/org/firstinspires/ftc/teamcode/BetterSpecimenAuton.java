@@ -6,10 +6,12 @@ import com.acmerobotics.dashboard.config.Config;
 import com.acmerobotics.dashboard.telemetry.MultipleTelemetry;
 import com.acmerobotics.dashboard.telemetry.TelemetryPacket;
 import com.acmerobotics.roadrunner.Action;
+import com.acmerobotics.roadrunner.InstantAction;
 import com.acmerobotics.roadrunner.ParallelAction;
 import com.acmerobotics.roadrunner.Pose2d;
 import com.acmerobotics.roadrunner.SequentialAction;
 import com.acmerobotics.roadrunner.TrajectoryActionBuilder;
+import com.acmerobotics.roadrunner.TranslationalVelConstraint;
 import com.acmerobotics.roadrunner.Vector2d;
 import com.acmerobotics.roadrunner.ftc.Actions;
 import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
@@ -20,13 +22,30 @@ import com.qualcomm.robotcore.util.ElapsedTime;
 @Autonomous(name = "BetterSpecimenAuton", preselectTeleOp = "DriverControl")
 public class BetterSpecimenAuton extends LinearOpMode {
     private RobotCommon common;
-    public static Pose2d START = new Pose2d(9, -9, 0);
-    public static Vector2d CHAMBER = new Vector2d(29, -9);
-    public static Vector2d BACK = new Vector2d(20, -9);
+    public static Pose2d START = new Pose2d(8.4, -63.25, Math.toRadians(90));
+    public static double CHAMBER_X = 8.4;
+    public static double CHAMBER_Y = -38;
+    public static double BACK_X = 8.4;
+    public static double BACK_Y = -48;
+    public static double SIDE1_X = 34;
+    public static double SIDE1_Y = -48;
+    public static double FORWARD1_X = 36;
+    public static double FORWARD1_Y = -12;
+    public static double SAMPLE1_X = 45;
+    public static double SAMPLE1_Y = -12;
+    public static double PICKUP1_X = 48;
+    public static double PICKUP1_Y = -56.5;
+    public static double BACK2_X = 48;
+    public static double BACK2_Y = -40;
+    public static double CHAMBER2_X = 4.4;
+    public static double CHAMBER2_Y = -38;
+    public static double PICKUP2_X = 48;
+    public static double PICKUP2_Y = -56.5;
     public static double ARM_SPECIMEN = 0.7;
     public static int SLIDE_SPECIMEN = 1000;
     public static double ARM_CLIP = 1.2;
     public static double T_CLIP = 1;
+    public static double T_INTAKE = 0.7;
 
     @Override
     public void runOpMode() throws InterruptedException {
@@ -37,19 +56,54 @@ public class BetterSpecimenAuton extends LinearOpMode {
         MecanumDrive drive = new MecanumDrive(hardwareMap, initialPose);
 
         TrajectoryActionBuilder trajectory = drive.actionBuilder(initialPose)
-            .stopAndAdd(common.doMoveArm(ARM_SPECIMEN))
-            .strafeTo(CHAMBER)
-            .afterTime(0, common.doMoveSlides(SLIDE_SPECIMEN))
-            .stopAndAdd(() -> common.moveArm(ARM_CLIP)) // don't wait for the arm to reach its target
+            .afterTime(0, common.doMoveArm(ARM_SPECIMEN))
+            .afterTime(0.5, common.doMoveSlides(SLIDE_SPECIMEN))
+            .waitSeconds(0.2)
+            .strafeTo(new Vector2d(CHAMBER_X, CHAMBER_Y))
+            .stopAndAdd(new SequentialAction(
+//                common.doMoveSlides(SLIDE_SPECIMEN), // ensure the slides finish moving before the arm starts
+                new InstantAction(() -> common.moveArm(ARM_CLIP)) // don't wait for the arm to reach its target
+            ))
             .waitSeconds(T_CLIP)
-            .strafeTo(BACK)
+            .strafeTo(new Vector2d(BACK_X, BACK_Y))
+            .afterTime(0, new SequentialAction(
+                common.doMoveSlides(RobotCommon.SLIDES_RETRACTED),
+                common.doMoveArm(RobotCommon.ARM_HORIZONTAL)))
+            .strafeToLinearHeading(new Vector2d(SIDE1_X, SIDE1_Y), Math.toRadians(-89.99))
+            .strafeTo(new Vector2d(FORWARD1_X, FORWARD1_Y))
+            .strafeTo(new Vector2d(SAMPLE1_X, SAMPLE1_Y))
+            .stopAndAdd(common.doMoveIntake(RobotCommon.IntakeOptions.IN))
+            .setTangent(Math.toRadians(-90)).splineTo(new Vector2d(PICKUP1_X, PICKUP1_Y), Math.toRadians(-90))
+            .waitSeconds(T_INTAKE)
+            .stopAndAdd(common.doMoveIntake(RobotCommon.IntakeOptions.STOP))
+            .stopAndAdd(common.doMoveArm(ARM_SPECIMEN))
+            .strafeTo(new Vector2d(BACK2_X, BACK2_Y))
+            .afterTime(0, common.doMoveSlides(SLIDE_SPECIMEN))
+            .setTangent(Math.toRadians(180)).splineToSplineHeading(new Pose2d(CHAMBER2_X, CHAMBER2_Y, Math.toRadians(90)), Math.toRadians(90))
+            .stopAndAdd(new InstantAction(() -> common.moveArm(ARM_CLIP)))
+            .waitSeconds(T_CLIP)
+            .strafeTo(new Vector2d(BACK_X, BACK_Y))
+            .afterTime(0, new SequentialAction(
+                common.doMoveSlides(RobotCommon.SLIDES_RETRACTED),
+                common.doMoveArm(RobotCommon.ARM_HORIZONTAL)))
+            .afterTime(0, common.doMoveIntake(RobotCommon.IntakeOptions.IN))
+            .setTangent(0) .splineToSplineHeading(new Pose2d(PICKUP2_X, PICKUP2_Y, Math.toRadians(-89.99)), Math.toRadians(-89.99))
+            .waitSeconds(T_INTAKE)
+            .stopAndAdd(common.doMoveIntake(RobotCommon.IntakeOptions.STOP))
+            .stopAndAdd(common.doMoveArm(ARM_SPECIMEN))
+            .afterTime(0.5, common.doMoveSlides(SLIDE_SPECIMEN))
+            .setTangent(Math.toRadians(180)).splineToSplineHeading(new Pose2d(CHAMBER2_X, CHAMBER2_Y, Math.toRadians(90)), Math.toRadians(90))
+            .stopAndAdd(new InstantAction(() -> common.moveArm(ARM_CLIP)))
+            .waitSeconds(T_CLIP)
+            .strafeTo(new Vector2d(BACK_X, BACK_Y))
             .endTrajectory();
+
+        Action trajectoryAction = trajectory.build();
+        preview(trajectoryAction);
 
         waitForStart();
         if (opModeIsActive()) {
-            runBlocking(new SequentialAction(
-                trajectory.build()
-            ));
+            runBlocking(trajectoryAction);
         }
     }
 
@@ -57,18 +111,23 @@ public class BetterSpecimenAuton extends LinearOpMode {
         common = new RobotCommon(hardwareMap);
         telemetry = new MultipleTelemetry(telemetry, FtcDashboard.getInstance().getTelemetry());
         common.initialize();
-        telemetry.addData("x", 0);
-        telemetry.addData("y", 0);
-        telemetry.addData("xError", 0);
-        telemetry.addData("yError", 0);
-        sendTelemetry();
+    }
+
+    public void preview(Action action) {
+        FtcDashboard dash = FtcDashboard.getInstance();
+        Canvas previewCanvas = new Canvas();
+        action.preview(previewCanvas);
+
+        TelemetryPacket packet = new TelemetryPacket();
+        packet.fieldOverlay().getOperations().addAll(previewCanvas.getOperations());
+
+        common.sendTelemetryAuton(packet);
+        dash.sendTelemetryPacket(packet);
     }
 
     public void runBlocking(Action action) {
         FtcDashboard dash = FtcDashboard.getInstance();
         Canvas previewCanvas = new Canvas();
-        // apply our coordinate system
-        previewCanvas.setRotation(Math.toRadians(-90)).setTranslation(0, 72);
         action.preview(previewCanvas);
 
         boolean running = true;
@@ -78,18 +137,12 @@ public class BetterSpecimenAuton extends LinearOpMode {
 
             running = action.run(packet);
 
-            dash.sendTelemetryPacket(packet);
             common.runAuton();
-//            sendTelemetry();
+            common.sendTelemetryAuton(packet);
+            dash.sendTelemetryPacket(packet);
         }
     }
 
-    private void sendTelemetry(){
-        common.sendTelemetry(telemetry);
-        telemetry.addData("x", 0);
-
-        telemetry.update();
-    }
 }
 
 // move the arm, extend slide, drop with intake, retract slide, move arm.

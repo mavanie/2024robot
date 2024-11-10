@@ -50,10 +50,10 @@ public class LocalizationTest extends LinearOpMode {
                 TelemetryPacket packet = new TelemetryPacket();
                 // match our field orientation
                 Canvas c = packet.fieldOverlay();
-                c.setRotation(Math.toRadians(-90)).setTranslation(0, 72);
+//                c.setRotation(Math.toRadians(-90)).setTranslation(0, 72);
                 c.setStroke("#3F51B5");
                 Drawing.drawRobot(packet.fieldOverlay(), drive.pose);
-                c.strokeLine(0, 0, 24, 48);
+//                c.strokeLine(0, 0, 24, 48);
                 FtcDashboard.getInstance().sendTelemetryPacket(packet);
             }
         } else if (TuningOpModes.DRIVE_CLASS.equals(TankDrive.class)) {

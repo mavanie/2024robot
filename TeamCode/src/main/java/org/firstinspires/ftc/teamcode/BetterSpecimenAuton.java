@@ -13,15 +13,19 @@ import com.acmerobotics.roadrunner.TrajectoryActionBuilder;
 import com.acmerobotics.roadrunner.Vector2d;
 import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
+import com.qualcomm.robotcore.util.ElapsedTime;
 
 @Config
 @Autonomous(name = "BetterSpecimenAuton", preselectTeleOp = "DriverControl")
 public class BetterSpecimenAuton extends LinearOpMode {
     private RobotCommon common;
-    public static Pose2d START = new Pose2d(8.4, -63.25, Math.toRadians(90));
-    public static double CHAMBER_X = 8.4;
+    private ElapsedTime opModeTime = new ElapsedTime();
+    public static double START_X = 8.75;
+    public static double START_Y = -63;
+    public static double START_R = 90;
+    public static double CHAMBER_X = 8.75;
     public static double CHAMBER_Y = -38;
-    public static double BACK_X = 8.4;
+    public static double BACK_X = 8.75;
     public static double BACK_Y = -48;
     public static double SIDE1_X = 34;
     public static double SIDE1_Y = -48;
@@ -37,7 +41,7 @@ public class BetterSpecimenAuton extends LinearOpMode {
     public static double CHAMBER2_Y = -38;
     public static double BACK2_X = 4.4;
     public static double BACK2_Y = -48;
-    public static double PICKUP2_X = 48;
+    public static double PICKUP2_X = 45;
     public static double PICKUP2_Y = -57;
     public static double CHAMBER3_X = 0.4;
     public static double CHAMBER3_Y = -38;
@@ -54,7 +58,7 @@ public class BetterSpecimenAuton extends LinearOpMode {
 
         initialize();
 
-        Pose2d initialPose = START;
+        Pose2d initialPose = new Pose2d(START_X, START_Y, Math.toRadians(START_R));
         MecanumDrive drive = new MecanumDrive(hardwareMap, initialPose);
 
         TrajectoryActionBuilder trajectory = drive.actionBuilder(initialPose)
@@ -102,6 +106,7 @@ public class BetterSpecimenAuton extends LinearOpMode {
             .stopAndAdd(new InstantAction(() -> common.moveArm(ARM_CLIP)))
             .waitSeconds(T_CLIP)
             .strafeTo(new Vector2d(BACK3_X, BACK3_Y))
+            .afterTime(0, common.doMoveSlides(RobotCommon.SLIDES_RETRACTED))
             .endTrajectory();
 
         Action trajectoryAction = trajectory.build();
@@ -109,6 +114,7 @@ public class BetterSpecimenAuton extends LinearOpMode {
 
         waitForStart();
         if (opModeIsActive()) {
+            opModeTime.reset();
             runBlocking(trajectoryAction);
         }
     }
@@ -127,6 +133,14 @@ public class BetterSpecimenAuton extends LinearOpMode {
         TelemetryPacket packet = new TelemetryPacket();
         packet.fieldOverlay().getOperations().addAll(previewCanvas.getOperations());
 
+        packet.put("time", 0);
+        packet.put("heading (deg)", START_R);
+        packet.put("headingError (deg)", 0);
+        packet.put("x", START_X);
+        packet.put("xError", 0);
+        packet.put("y", START_Y);
+        packet.put("yError", 0);
+
         common.sendTelemetryAuton(packet);
         dash.sendTelemetryPacket(packet);
     }
@@ -140,6 +154,7 @@ public class BetterSpecimenAuton extends LinearOpMode {
         while (running && !Thread.currentThread().isInterrupted()) {
             TelemetryPacket packet = new TelemetryPacket();
             packet.fieldOverlay().getOperations().addAll(previewCanvas.getOperations());
+            packet.put("time", opModeTime.seconds());
 
             running = action.run(packet);
 

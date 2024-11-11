@@ -71,7 +71,7 @@ public class RobotCommon {
     private double armDPart = 0;
     public static double ARM_MIN = 0.684;
     public static double ARM_DROP = 0.7;
-    public static double ARM_HORIZONTAL = 1.5;
+    public static double ARM_HORIZONTAL = 1.525;
     public static double ARM_GROUND = 1.8;
     public static double ARM_MAX = 2.8;
     private List<Double> oldArmPositions;

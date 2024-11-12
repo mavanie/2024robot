@@ -51,6 +51,7 @@ public class BetterSpecimenAuton extends LinearOpMode {
     public static int SLIDE_SPECIMEN = 1000;
     public static double ARM_CLIP = 1.2;
     public static double T_CLIP = 1;
+    public static double T_START = 0.6;
     public static double T_INTAKE = 0.7;
     public static double T_HUMAN = 0.5;
     @Override
@@ -63,8 +64,8 @@ public class BetterSpecimenAuton extends LinearOpMode {
 
         TrajectoryActionBuilder trajectory = drive.actionBuilder(initialPose)
             .afterTime(0, common.doMoveArm(ARM_SPECIMEN))
-            .afterTime(0.5, common.doMoveSlides(SLIDE_SPECIMEN))
-            .waitSeconds(0.2)
+            .afterTime(0.2, common.doMoveSlides(SLIDE_SPECIMEN))
+            .waitSeconds(T_START)
             .strafeTo(new Vector2d(CHAMBER_X, CHAMBER_Y))
             .stopAndAdd(new SequentialAction(
 //                common.doMoveSlides(SLIDE_SPECIMEN), // ensure the slides finish moving before the arm starts
@@ -165,5 +166,3 @@ public class BetterSpecimenAuton extends LinearOpMode {
     }
 
 }
-
-// move the arm, extend slide, drop with intake, retract slide, move arm.

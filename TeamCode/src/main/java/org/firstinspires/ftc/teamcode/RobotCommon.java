@@ -342,14 +342,16 @@ public class RobotCommon {
     }
 
     public class MoveIntakeAction implements Action {
-        private IntakeOptions intakeOption;
+        private final IntakeOptions intakeOption;
+        private int tries = 10;
         public MoveIntakeAction(IntakeOptions intakeOption){
             this.intakeOption = intakeOption;
         }
         @Override
         public boolean run(@NonNull TelemetryPacket telemetryPacket) {
             moveIntake(intakeOption);
-            return false;
+            tries--;
+            return tries >= 0;
         }
     }
 

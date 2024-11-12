@@ -5,6 +5,9 @@ import androidx.annotation.NonNull;
 import com.acmerobotics.dashboard.config.Config;
 import com.acmerobotics.dashboard.telemetry.TelemetryPacket;
 import com.acmerobotics.roadrunner.Action;
+import com.acmerobotics.roadrunner.ftc.Encoder;
+import com.acmerobotics.roadrunner.ftc.OverflowEncoder;
+import com.acmerobotics.roadrunner.ftc.RawEncoder;
 import com.qualcomm.hardware.rev.RevHubOrientationOnRobot;
 import com.qualcomm.robotcore.hardware.AnalogInput;
 import com.qualcomm.robotcore.hardware.CRServo;
@@ -27,6 +30,8 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
+
+import kotlin.jvm.internal.Lambda;
 
 @Config
 
@@ -56,6 +61,10 @@ public class RobotCommon {
     private double yaw;
     private AbsoluteGyro gyro;
     private double absoluteYaw;
+
+    public Encoder par0, perp;
+    public double x = 0;
+    public double y = 0;
 
     // Arm
     private DcMotorEx arm;
@@ -93,6 +102,7 @@ public class RobotCommon {
     public enum IntakeOptions {
         STOP, IN, OUT
     }
+    private IntakeOptions currentIntakeOption = IntakeOptions.STOP;
 
     public RobotCommon(HardwareMap hardwareMap) {
         this.hardwareMap = hardwareMap;
@@ -148,6 +158,9 @@ public class RobotCommon {
         backLeft.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
         frontRight.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
         backRight.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
+        par0 = new OverflowEncoder(new RawEncoder(hardwareMap.get(DcMotorEx.class, "par1")));
+        perp = new OverflowEncoder(new RawEncoder(hardwareMap.get(DcMotorEx.class, "perp")));
+
 
         // Config slides
         slides.setTargetPosition(slides.getCurrentPosition());
@@ -185,6 +198,9 @@ public class RobotCommon {
         yaw = imu.getRobotYawPitchRollAngles().getYaw();
         absoluteYaw = gyro.calculate(yaw);
 
+        x = par0.getPositionAndVelocity().position * MecanumDrive.PARAMS.inPerTick;
+        y = perp.getPositionAndVelocity().position * MecanumDrive.PARAMS.inPerTick;
+
         frontLeftTarget = vx + vy + rot;
         backLeftTarget = (vx - vy) + rot;
         frontRightTarget = (vx - vy) - rot;
@@ -201,6 +217,18 @@ public class RobotCommon {
     public void resetYaw() {
         imu.resetYaw();
         // TODO: reset gyro yaw too
+    }
+
+    public void driveX(double velocity, double inches, Runnable driveRun) {
+        double startX = x;
+        setRobotSpeed(velocity, 0, 0);
+        boolean done = false;
+        while (!done) {
+            driveRun.run();
+            double disp = Math.abs(x - startX);
+            done = disp > inches;
+        }
+        setRobotSpeed(0, 0, 0);
     }
 
     // Arm
@@ -310,6 +338,7 @@ public class RobotCommon {
             intakeLeft.setPower(0);
             intakeRight.setPower(0);
         }
+        currentIntakeOption = intakeOption;
     }
 
     public class MoveIntakeAction implements Action {
@@ -335,10 +364,10 @@ public class RobotCommon {
 //        telemetry.addData("backLeftTarget", backLeftTarget);
 //        telemetry.addData("frontRightTarget", frontRightTarget);
 //        telemetry.addData("backRightTarget", backRightTarget);
-//        telemetry.addData("frontLeftVelocity", frontLeft.getVelocity());
-//        telemetry.addData("backLeftVelocity", backLeft.getVelocity());
-//        telemetry.addData("frontRightVelocity", frontRight.getVelocity());
-//        telemetry.addData("backRightVelocity", backRight.getVelocity());
+        telemetry.addData("frontLeftVelocity", frontLeft.getVelocity());
+        telemetry.addData("backLeftVelocity", backLeft.getVelocity());
+        telemetry.addData("frontRightVelocity", frontRight.getVelocity());
+        telemetry.addData("backRightVelocity", backRight.getVelocity());
 
         telemetry.addData("Slide Position", slides.getCurrentPosition());
         telemetry.addData("Slide Target Position", slides.getTargetPosition());
@@ -349,10 +378,14 @@ public class RobotCommon {
         telemetry.addData("Arm D", armDPart);
         telemetry.addData("Arm P", armPPart);
         telemetry.addData("Arm Limited Power", armLimitedPower);
+        telemetry.addData("Intake", currentIntakeOption.ordinal());
+
+        telemetry.addData("x", x);
+        telemetry.addData("y", y);
     }
 
     public void sendTelemetryAuton(TelemetryPacket packet){
-        packet.put("Yaw", absoluteYaw);
+//        packet.put("Yaw", absoluteYaw);
 
         packet.put("frontLeftVelocity", frontLeft.getVelocity());
         packet.put("backLeftVelocity", backLeft.getVelocity());
@@ -369,5 +402,6 @@ public class RobotCommon {
         packet.put("Arm D", armDPart);
         packet.put("Arm P", armPPart);
         packet.put("Arm Limited Power", armLimitedPower);
+        packet.put("Intake", currentIntakeOption.ordinal());
     }
 }

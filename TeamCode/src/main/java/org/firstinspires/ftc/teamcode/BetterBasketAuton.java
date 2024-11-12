@@ -10,6 +10,7 @@ import com.acmerobotics.roadrunner.InstantAction;
 import com.acmerobotics.roadrunner.ParallelAction;
 import com.acmerobotics.roadrunner.Pose2d;
 import com.acmerobotics.roadrunner.SequentialAction;
+import com.acmerobotics.roadrunner.SleepAction;
 import com.acmerobotics.roadrunner.TrajectoryActionBuilder;
 import com.acmerobotics.roadrunner.Vector2d;
 import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
@@ -38,8 +39,10 @@ public class BetterBasketAuton extends LinearOpMode {
     public static int SLIDE_SAMPLE = 3700;
     public static int SLIDE_BASKET = 4800;
     public static double T_START = 0.6;
-    public static double T_CLIP = 1;
+    public static double T_CLIP1 = 0.7;
+    public static double T_CLIP2 = 0.3;
     public static double T_SAMPLE = 1;
+    public static double V_SLOW = 5;
     @Override
     public void runOpMode() throws InterruptedException {
 
@@ -54,19 +57,22 @@ public class BetterBasketAuton extends LinearOpMode {
             .waitSeconds(T_START)
             .strafeTo(new Vector2d(START_X, CHAMBER_Y))
             .stopAndAdd(new SequentialAction(
-                new InstantAction(() -> common.moveArm(ARM_CLIP)) // don't wait for the arm to reach its target
+                new InstantAction(() -> common.moveArm(ARM_CLIP)), // don't wait for the arm to reach its target
+                new SleepAction(T_CLIP1),
+                common.doMoveIntake(RobotCommon.IntakeOptions.OUT),
+                new SleepAction(T_CLIP2)
             ))
-            .waitSeconds(T_CLIP)
             .strafeTo(new Vector2d(START_X, BACK_Y))
             .afterTime(0, new SequentialAction(
+                common.doMoveIntake(RobotCommon.IntakeOptions.STOP),
                 common.doMoveSlides(RobotCommon.SLIDES_RETRACTED),
                 common.doMoveArm(ARM_SAMPLE)))
             .afterTime(0, common.doMoveArm(ARM_SAMPLE))
             .strafeToSplineHeading(new Vector2d(SAMPLE1_X, SAMPLE1_Y), Math.toRadians(SAMPLE1_R), (robotPose, _path, _disp) -> {
-                if (robotPose.position.x.value() < SAMPLE1_X + 5) {
-                    return 10.0;
+                if (robotPose.position.x.value() < SAMPLE1_X + 6) {
+                    return V_SLOW;
                 } else {
-                    return 40.0;
+                    return MecanumDrive.PARAMS.maxWheelVel;
                 }
             })
             .stopAndAdd(new ParallelAction(
@@ -78,10 +84,10 @@ public class BetterBasketAuton extends LinearOpMode {
                 common.doMoveIntake(RobotCommon.IntakeOptions.STOP),
                 common.doMoveSlides(RobotCommon.SLIDES_RETRACTED)
             ))
-        .afterTime(0, new SequentialAction(
-            common.doMoveArm(ARM_BASKET),
-            common.doMoveSlides(SLIDE_BASKET)
-        ))
+            .afterTime(0, new SequentialAction(
+                common.doMoveArm(ARM_BASKET),
+                common.doMoveSlides(SLIDE_BASKET)
+            ))
             .turnTo(Math.toRadians(BASKET_R))
             .stopAndAdd(new SequentialAction(
                 common.doMoveSlides(SLIDE_BASKET),

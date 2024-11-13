@@ -27,7 +27,7 @@ import java.util.Arrays;
 public class BetterOnlyBasketAuton extends LinearOpMode {
     private RobotCommon common;
     private ElapsedTime opModeTime = new ElapsedTime();
-    public static double START_X = -36.25;
+    public static double START_X = -35.25;
     public static double START_Y = -62.75;
     public static double START_R = 90;
     public static double CHAMBER_Y = -38;

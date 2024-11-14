@@ -93,6 +93,7 @@ public class RobotCommon {
     public enum IntakeOptions {
         STOP, IN, OUT
     }
+    private IntakeOptions currentIntakeOption = IntakeOptions.STOP;
 
     public RobotCommon(HardwareMap hardwareMap) {
         this.hardwareMap = hardwareMap;
@@ -291,7 +292,7 @@ public class RobotCommon {
                 moveSlides(targetPosition);
                 firstRun = false;
             }
-            return Math.abs(targetPosition - slides.getCurrentPosition()) > 5;
+            return Math.abs(targetPosition - slides.getCurrentPosition()) > 10;
         }
     }
     public Action doMoveSlides(int targetPosition){
@@ -310,6 +311,7 @@ public class RobotCommon {
             intakeLeft.setPower(0);
             intakeRight.setPower(0);
         }
+        currentIntakeOption = intakeOption;
     }
 
     public class MoveIntakeAction implements Action {
@@ -335,10 +337,10 @@ public class RobotCommon {
 //        telemetry.addData("backLeftTarget", backLeftTarget);
 //        telemetry.addData("frontRightTarget", frontRightTarget);
 //        telemetry.addData("backRightTarget", backRightTarget);
-//        telemetry.addData("frontLeftVelocity", frontLeft.getVelocity());
-//        telemetry.addData("backLeftVelocity", backLeft.getVelocity());
-//        telemetry.addData("frontRightVelocity", frontRight.getVelocity());
-//        telemetry.addData("backRightVelocity", backRight.getVelocity());
+        telemetry.addData("frontLeftVelocity", frontLeft.getVelocity());
+        telemetry.addData("backLeftVelocity", backLeft.getVelocity());
+        telemetry.addData("frontRightVelocity", frontRight.getVelocity());
+        telemetry.addData("backRightVelocity", backRight.getVelocity());
 
         telemetry.addData("Slide Position", slides.getCurrentPosition());
         telemetry.addData("Slide Target Position", slides.getTargetPosition());
@@ -349,10 +351,11 @@ public class RobotCommon {
         telemetry.addData("Arm D", armDPart);
         telemetry.addData("Arm P", armPPart);
         telemetry.addData("Arm Limited Power", armLimitedPower);
+        telemetry.addData("Intake", currentIntakeOption.ordinal());
     }
 
     public void sendTelemetryAuton(TelemetryPacket packet){
-        packet.put("Yaw", absoluteYaw);
+//        packet.put("Yaw", absoluteYaw);
 
         packet.put("frontLeftVelocity", frontLeft.getVelocity());
         packet.put("backLeftVelocity", backLeft.getVelocity());
@@ -369,5 +372,6 @@ public class RobotCommon {
         packet.put("Arm D", armDPart);
         packet.put("Arm P", armPPart);
         packet.put("Arm Limited Power", armLimitedPower);
+        packet.put("Intake", currentIntakeOption.ordinal());
     }
 }

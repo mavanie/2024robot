@@ -44,6 +44,9 @@ public class BetterOnlyBasketAuton extends LinearOpMode {
     public static double PARK_Y = -28;
     public static double PARK_R = 50;
     public static double PARK2_R = 35;
+    public static double SAMPLE3_X = -60;
+    public static double SAMPLE3_Y = -46;
+    public static double SAMPLE3_R = 120;
     public static double ARM_SAMPLE = 1.75;
     public static double ARM_BASKET = 0.77;
     public static double ARM_PARK = 1.18;
@@ -119,11 +122,28 @@ public class BetterOnlyBasketAuton extends LinearOpMode {
                 common.doMoveIntake(RobotCommon.IntakeOptions.OUT),
                 new SleepAction(T_DROP)
             ))
-            .afterTime(T_PARK, common.doMoveArm(ARM_PARK))
-            .stopAndAdd(common.doMoveIntake(RobotCommon.IntakeOptions.STOP))
-            .strafeToLinearHeading(new Vector2d(PARK_X, PARK_Y), Math.toRadians(PARK_R))
-            .turnTo(Math.toRadians(PARK2_R));
-//            .waitSeconds(4);
+            .afterTime(0.3, common.doMoveSlides(RobotCommon.SLIDES_RETRACTED))
+            .strafeToSplineHeading(new Vector2d(SAMPLE3_X, SAMPLE3_Y), Math.toRadians(SAMPLE3_R), slow)
+            .stopAndAdd(new SequentialAction(
+                common.doMoveSlides(RobotCommon.SLIDES_RETRACTED),
+                common.doMoveIntake(RobotCommon.IntakeOptions.IN),
+                common.doMoveArm(ARM_SAMPLE),
+                common.doMoveSlides(SLIDE_SAMPLE)
+            ))
+            .lineToY(SAMPLE3_Y + SAMPLE_PUSH, slow)
+            .stopAndAdd(new SequentialAction(
+                common.doMoveSlides(RobotCommon.SLIDES_RETRACTED),
+                common.doMoveIntake(RobotCommon.IntakeOptions.STOP)
+            ))
+            .afterTime(0, common.doMoveArm(ARM_BASKET))
+            .afterTime(0.2, common.doMoveSlides(SLIDE_BASKET))
+            .strafeToSplineHeading(new Vector2d(BASKET1_X, BASKET1_Y), Math.toRadians(BASKET1_R), slow)
+            .stopAndAdd(new SequentialAction(
+                common.doMoveSlides(SLIDE_BASKET),
+                common.doMoveIntake(RobotCommon.IntakeOptions.OUT),
+                new SleepAction(T_DROP)
+            ))
+            .waitSeconds(4);
 
         Action trajectoryAction = trajectory.build();
         preview(trajectoryAction);

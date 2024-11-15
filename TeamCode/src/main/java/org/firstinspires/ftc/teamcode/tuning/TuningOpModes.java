@@ -37,7 +37,7 @@ public final class TuningOpModes {
 
     public static final String GROUP = "quickstart";
     // TODO: set DISABLED = true when we're done tuning to decrease number of op modes
-    public static final boolean DISABLED = false;
+    public static final boolean DISABLED = true;
 
     private TuningOpModes() {}
 
@@ -51,6 +51,8 @@ public final class TuningOpModes {
 
     @OpModeRegistrar
     public static void register(OpModeManager manager) {
+        manager.register(metaForClass(LocalizationTest.class), LocalizationTest.class);
+
         if (DISABLED) return;
 
         DriveViewFactory dvf;
@@ -163,7 +165,6 @@ public final class TuningOpModes {
 
         manager.register(metaForClass(ManualFeedbackTuner.class), ManualFeedbackTuner.class);
         manager.register(metaForClass(SplineTest.class), SplineTest.class);
-        manager.register(metaForClass(LocalizationTest.class), LocalizationTest.class);
 
         FtcDashboard.getInstance().withConfigRoot(configRoot -> {
             for (Class<?> c : Arrays.asList(

@@ -13,11 +13,13 @@ import com.acmerobotics.roadrunner.SequentialAction;
 import com.acmerobotics.roadrunner.TrajectoryActionBuilder;
 import com.acmerobotics.roadrunner.Vector2d;
 import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
+import com.qualcomm.robotcore.eventloop.opmode.Disabled;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.util.ElapsedTime;
 
 @Config
-@Autonomous
+@Autonomous(name = "BetterBasketAuton", preselectTeleOp = "DriverControl")
+@Disabled
 public class BetterBasketAuton extends LinearOpMode {
     private RobotCommon common;
     private ElapsedTime opModeTime = new ElapsedTime();

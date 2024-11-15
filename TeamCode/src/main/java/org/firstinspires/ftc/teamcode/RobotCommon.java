@@ -72,8 +72,8 @@ public class RobotCommon {
     public static double ARM_MIN = 0.684;
     public static double ARM_DROP = 0.7;
     public static double ARM_HORIZONTAL = 1.525;
-    public static double ARM_GROUND = 1.8;
-    public static double ARM_MAX = 2.8;
+    public static double ARM_GROUND = 1.921;
+    public static double ARM_MAX = 1.95;
     private List<Double> oldArmPositions;
     private List<Double> speedFactors;
     private double armSpeed = 0;
@@ -85,7 +85,7 @@ public class RobotCommon {
     public static int SLIDE_VELOCITY = 5000;
     public static int SLIDES_EXTENDED = 4035;
     public static int SLIDES_RETRACTED = 0;
-    public static int SLIDES_MAX = 4850;
+    public static int SLIDES_MAX = 4800;
 
     // Intake
     private CRServo intakeLeft;

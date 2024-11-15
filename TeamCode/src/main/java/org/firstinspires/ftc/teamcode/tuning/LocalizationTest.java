@@ -38,7 +38,7 @@ public class LocalizationTest extends LinearOpMode {
                 double vx = x * Math.cos(Math.toRadians(yaw))- y * Math.sin(Math.toRadians(yaw));
                 double vy = x * Math.sin(Math.toRadians(yaw)) + y * Math.cos(Math.toRadians(yaw));
 
-//                drive.setDrivePowers(new PoseVelocity2d(new Vector2d(vx, vy), rot));
+                drive.setDrivePowers(new PoseVelocity2d(new Vector2d(vx, vy), rot));
 
                 drive.updatePoseEstimate();
 

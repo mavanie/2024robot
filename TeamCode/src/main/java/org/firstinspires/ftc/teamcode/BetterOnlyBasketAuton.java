@@ -23,11 +23,11 @@ import com.qualcomm.robotcore.util.ElapsedTime;
 import java.util.Arrays;
 
 @Config
-@Autonomous
+@Autonomous(name = "BetterOnlyBasketAuton", preselectTeleOp = "DriverControl")
 public class BetterOnlyBasketAuton extends LinearOpMode {
     private RobotCommon common;
     private ElapsedTime opModeTime = new ElapsedTime();
-    public static double START_X = -35.25;
+    public static double START_X = -34.5;
     public static double START_Y = -62.75;
     public static double START_R = 180;
     public static double BASKET1_X = -49.5;
@@ -35,23 +35,24 @@ public class BetterOnlyBasketAuton extends LinearOpMode {
     public static double BASKET1_R = -135;
     public static double SAMPLE1_X = -46;
     public static double SAMPLE1_Y = -46;
-    public static double SAMPLE1_R = 91;
-    public static double SAMPLE_PUSH = 3    ;
+    public static double SAMPLE1_R = 94;
+    public static double SAMPLE_PUSH = 3;
     public static double SAMPLE2_X = -56;
     public static double SAMPLE2_Y = -46;
-    public static double SAMPLE2_R = 92;
+    public static double SAMPLE2_R = 95;
     public static double PARK_X = -36;
     public static double PARK_Y = -28;
-    public static double PARK_R = 50;
-    public static double PARK2_R = 35;
+    public static double PARK_R = 70;
+    public static double PARK2_R = 40;
     public static double ARM_SAMPLE = 1.75;
     public static double ARM_BASKET = 0.77;
-    public static double ARM_PARK = 1.18;
+    public static double ARM_PARK = 1.1;
     public static int SLIDE_SAMPLE = 2500;
     public static int SLIDE_BASKET = 4800;
     public static double T_DROP = 1;
     public static double T_DROP1 = 1.5;
     public static double T_PARK = 1;
+    public static double T_PARK2 = 1;
     public static double V_SLOW = 7;
     public static double R_SLOW = 1.8;
     public static double V_FAST = 60;
@@ -122,8 +123,8 @@ public class BetterOnlyBasketAuton extends LinearOpMode {
             .afterTime(T_PARK, common.doMoveArm(ARM_PARK))
             .stopAndAdd(common.doMoveIntake(RobotCommon.IntakeOptions.STOP))
             .strafeToLinearHeading(new Vector2d(PARK_X, PARK_Y), Math.toRadians(PARK_R))
+            .waitSeconds(T_PARK2)
             .turnTo(Math.toRadians(PARK2_R));
-//            .waitSeconds(4);
 
         Action trajectoryAction = trajectory.build();
         preview(trajectoryAction);

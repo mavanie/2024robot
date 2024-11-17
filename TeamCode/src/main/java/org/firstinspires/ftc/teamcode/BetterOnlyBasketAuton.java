@@ -35,11 +35,11 @@ public class BetterOnlyBasketAuton extends LinearOpMode {
     public static double BASKET1_R = -135;
     public static double SAMPLE1_X = -46;
     public static double SAMPLE1_Y = -46;
-    public static double SAMPLE1_R = 94;
+    public static double SAMPLE1_R = 92;
     public static double SAMPLE_PUSH = 3;
     public static double SAMPLE2_X = -56;
     public static double SAMPLE2_Y = -46;
-    public static double SAMPLE2_R = 95;
+    public static double SAMPLE2_R = 93;
     public static double PARK_X = -36;
     public static double PARK_Y = -28;
     public static double PARK_R = 70;
@@ -52,7 +52,7 @@ public class BetterOnlyBasketAuton extends LinearOpMode {
     public static double T_DROP = 1;
     public static double T_DROP1 = 1.5;
     public static double T_PARK = 1;
-    public static double T_PARK2 = 1;
+    public static double T_PARK2 = 1.5;
     public static double V_SLOW = 7;
     public static double R_SLOW = 1.8;
     public static double V_FAST = 60;

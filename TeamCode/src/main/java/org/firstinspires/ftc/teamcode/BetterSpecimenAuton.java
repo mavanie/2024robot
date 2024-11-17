@@ -1,7 +1,5 @@
 package org.firstinspires.ftc.teamcode;
 
-import androidx.annotation.Nullable;
-
 import com.acmerobotics.dashboard.FtcDashboard;
 import com.acmerobotics.dashboard.canvas.Canvas;
 import com.acmerobotics.dashboard.config.Config;
@@ -32,41 +30,43 @@ public class BetterSpecimenAuton extends LinearOpMode {
     public static double START_X = 8.75;
     public static double START_Y = -62.75;
     public static double START_R = 90;
-    public static double CHAMBER_X = 8.75;
-    public static double CHAMBER_Y = -37.5;
+    public static double CHAMBER1_X = 8.75;
+    public static double CHAMBER1_Y = -37;
     public static double BACK_X = 8.75;
     public static double BACK_Y = -48;
     public static double PICKUP1_X = 47;
     public static double PICKUP1_Y = -42.5;
-    public static double PICKUP_PUSH = 7;
-    public static double CHAMBER2_X = 0;
-    public static double CHAMBER2_Y = -38;
+    public static double PICKUP1_R = -90;
+    public static double PICKUP_PUSH = 11.5;
+    public static double CHAMBER2_X = 4.4;
+    public static double CHAMBER2_Y = -36.5;
+    public static double CHAMBER2_R = 90;
     public static double BACK2_X = 4.4;
     public static double BACK2_Y = -48;
-    public static double SIDE1_X = 36;
+    public static double SIDE1_X = 34;
     public static double SIDE1_Y = -36;
-    public static double FORWARD1_X = 36;
+    public static double FORWARD1_X = 34;
     public static double FORWARD1_Y = -12;
-    public static double SIDE2_X = 46;
+    public static double SIDE2_X = 39;
     public static double SIDE2_Y = -12;
-    public static double BACK3_X = 46;
+    public static double BACK3_X = 39;
     public static double BACK3_Y = -60;
-    public static double FORWARD2_X = 46;
-    public static double FORWARD2_Y = -12;
-    public static double SIDE3_X = 56;
-    public static double SIDE3_Y = -12;
-    public static double BACK4_X = 56;
+    public static double FORWARD2_X = 39;
+    public static double FORWARD2_Y = -9;
+    public static double SIDE3_X = 51;
+    public static double SIDE3_Y = -9;
+    public static double BACK4_X = 51;
     public static double BACK4_Y = -60;
-    public static double FORWARD3_X = 56;
-    public static double FORWARD3_Y = -12;
-    public static double SIDE4_X = 64;
-    public static double SIDE4_Y = -12;
-    public static double BACK5_X = 64;
+    public static double FORWARD3_X = 51;
+    public static double FORWARD3_Y = -9;
+    public static double SIDE4_X = 56;
+    public static double SIDE4_Y = -9;
+    public static double BACK5_X = 56;
     public static double BACK5_Y = -60;
     public static double ARM_SPECIMEN = 0.7;
-    public static double ARM_PICKUP = 1.45;
-    public static int SLIDE_SPECIMEN = 1000;
+    public static double ARM_PICKUP = 1.5;
     public static double ARM_CLIP = 1.2;
+    public static int SLIDE_SPECIMEN = 1000;
     public static double T_CLIP = 1;
     public static double T_START = 0.2;
     public static double V_MEDIUM = 15;
@@ -87,36 +87,39 @@ public class BetterSpecimenAuton extends LinearOpMode {
             .afterTime(0, common.doMoveArm(ARM_SPECIMEN))
             .afterTime(0.2, common.doMoveSlides(SLIDE_SPECIMEN))
             .waitSeconds(T_START)
-            .strafeTo(new Vector2d(CHAMBER_X, CHAMBER_Y), medium)
+            .strafeTo(new Vector2d(CHAMBER1_X, CHAMBER1_Y), medium)
             .stopAndAdd(new SequentialAction(
                 new InstantAction(() -> common.moveArm(ARM_CLIP)) // don't wait for the arm to reach its target
             ))
             .waitSeconds(T_CLIP)
+
             .strafeTo(new Vector2d(BACK_X, BACK_Y), medium)
             .afterTime(0, new ParallelAction(
-//                common.doMoveSlides(SLIDE_PICKUP),
                 common.doMoveIntake(RobotCommon.IntakeOptions.IN),
                 common.doMoveArm(ARM_PICKUP)
                 ))
-            .strafeToLinearHeading(new Vector2d(PICKUP1_X, PICKUP1_Y), Math.toRadians(-90),medium)
+            .strafeToLinearHeading(new Vector2d(PICKUP1_X, PICKUP1_Y), Math.toRadians(PICKUP1_R),medium)
             .strafeTo(new Vector2d(PICKUP1_X, PICKUP1_Y - PICKUP_PUSH), new TranslationalVelConstraint(V_SLOW))
-            .stopAndAdd(common.doMoveIntake(RobotCommon.IntakeOptions.STOP))
             .stopAndAdd(common.doMoveArm(ARM_SPECIMEN))
-//            .afterTime(0, common.doMoveSlides(SLIDE_SPECIMEN))
-            .setTangent(Math.toRadians(180)).splineToSplineHeading(new Pose2d(CHAMBER2_X, CHAMBER2_Y, Math.toRadians(90)), Math.toRadians(90))
+            .stopAndAdd(common.doMoveIntake(RobotCommon.IntakeOptions.STOP))
+            .setTangent(Math.toRadians(180)).splineToSplineHeading(new Pose2d(CHAMBER2_X, CHAMBER2_Y, Math.toRadians(CHAMBER2_R)), Math.toRadians(90))
             .stopAndAdd(new InstantAction(() -> common.moveArm(ARM_CLIP)))
             .waitSeconds(T_CLIP)
             .strafeTo(new Vector2d(BACK2_X, BACK2_Y))
+            .afterTime(0, common.doMoveIntake(RobotCommon.IntakeOptions.OUT))
+
             .strafeTo(new Vector2d(SIDE1_X, SIDE1_Y))
             .strafeTo(new Vector2d(FORWARD1_X, FORWARD1_Y))
+            .afterTime(0, common.doMoveIntake(RobotCommon.IntakeOptions.STOP))
+
             .strafeTo(new Vector2d(SIDE2_X, SIDE2_Y))
             .strafeTo(new Vector2d(BACK3_X, BACK3_Y))
             .strafeTo(new Vector2d(FORWARD2_X, FORWARD2_Y))
             .strafeTo(new Vector2d(SIDE3_X, SIDE3_Y))
             .strafeTo(new Vector2d(BACK4_X, BACK4_Y))
-            .strafeTo(new Vector2d(FORWARD3_X, FORWARD3_Y))
-            .strafeTo(new Vector2d(SIDE4_X, SIDE4_Y))
-            .strafeTo(new Vector2d(BACK5_X, BACK5_Y))
+//            .strafeTo(new Vector2d(FORWARD3_X, FORWARD3_Y))
+//            .strafeTo(new Vector2d(SIDE4_X, SIDE4_Y))
+//            .strafeTo(new Vector2d(BACK5_X, BACK5_Y))
             .endTrajectory();
 
         Action trajectoryAction = trajectory.build();

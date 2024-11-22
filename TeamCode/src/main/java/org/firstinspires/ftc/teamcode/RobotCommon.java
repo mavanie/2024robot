@@ -1,5 +1,7 @@
 package org.firstinspires.ftc.teamcode;
 
+import android.graphics.Color;
+
 import androidx.annotation.NonNull;
 
 import com.acmerobotics.dashboard.config.Config;
@@ -10,23 +12,29 @@ import com.qualcomm.robotcore.hardware.AnalogInput;
 import com.qualcomm.robotcore.hardware.CRServo;
 import com.qualcomm.robotcore.hardware.DcMotorEx;
 import com.qualcomm.robotcore.hardware.DcMotorSimple;
+import com.qualcomm.robotcore.hardware.DistanceSensor;
 import com.qualcomm.robotcore.hardware.HardwareMap;
 import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.hardware.DcMotor.RunMode;
 import com.qualcomm.hardware.lynx.LynxModule;
 import com.qualcomm.robotcore.hardware.IMU;
+import com.qualcomm.robotcore.hardware.NormalizedColorSensor;
+import com.qualcomm.robotcore.hardware.NormalizedRGBA;
 import com.qualcomm.robotcore.hardware.Servo;
 
 import org.firstinspires.ftc.robotcore.external.Telemetry;
 import org.firstinspires.ftc.robotcore.external.navigation.AngleUnit;
 import org.firstinspires.ftc.robotcore.external.navigation.AxesOrder;
 import org.firstinspires.ftc.robotcore.external.navigation.AxesReference;
+import org.firstinspires.ftc.robotcore.external.navigation.DistanceUnit;
 import org.firstinspires.ftc.robotcore.external.navigation.Orientation;
 
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
+
+import com.qualcomm.robotcore.hardware.LED;
 
 @Config
 
@@ -90,10 +98,22 @@ public class RobotCommon {
     // Intake
     private CRServo intakeLeft;
     private CRServo intakeRight;
+
     public enum IntakeOptions {
         STOP, IN, OUT
     }
+
     private IntakeOptions currentIntakeOption = IntakeOptions.STOP;
+
+
+    // Color Sensor
+    private LED red;
+    private LED yellow_1;
+    private LED blue;
+    private LED yellow_2;
+    private NormalizedColorSensor color;
+    private double colorDistance = 0;
+    private double colorHue = 0;
 
     public RobotCommon(HardwareMap hardwareMap) {
         this.hardwareMap = hardwareMap;
@@ -118,20 +138,25 @@ public class RobotCommon {
         intakeRight = hardwareMap.get(CRServo.class, "intakeRight");
         imu = hardwareMap.get(IMU.class, "imuExpansion");
         hook = hardwareMap.get(Servo.class, "hook");
-
+        red = hardwareMap.get(LED.class, "red");
+        yellow_1 = hardwareMap.get(LED.class, "yellow_1");
+        blue = hardwareMap.get(LED.class, "blue");
+        yellow_2 = hardwareMap.get(LED.class, "yellow_2");
+        color = hardwareMap.get(NormalizedColorSensor.class, "color");
+        color.setGain(2);
         // Config Imu
         IMU.Parameters imuParams = new IMU.Parameters(
-                new RevHubOrientationOnRobot(
-                        new Orientation(
-                                AxesReference.INTRINSIC,
-                                AxesOrder.ZYX,
-                                AngleUnit.DEGREES,
-                                180f,
-                                0f,
-                                60f,
-                                0
-                        )
+            new RevHubOrientationOnRobot(
+                new Orientation(
+                    AxesReference.INTRINSIC,
+                    AxesOrder.ZYX,
+                    AngleUnit.DEGREES,
+                    180f,
+                    0f,
+                    60f,
+                    0
                 )
+            )
         );
         imu.initialize(imuParams);
         gyro = new AbsoluteGyro();
@@ -167,6 +192,7 @@ public class RobotCommon {
     public void run() {
         runDrive();
         runArm();
+        runColor();
     }
 
     public void runAuton() {
@@ -199,6 +225,7 @@ public class RobotCommon {
     public double getAbsoluteYaw() {
         return absoluteYaw;
     }
+
     public void resetYaw() {
         imu.resetYaw();
         // TODO: reset gyro yaw too
@@ -206,14 +233,15 @@ public class RobotCommon {
 
     // Arm
 
-    public void moveArm(double targetPosition){
+    public void moveArm(double targetPosition) {
         armTargetPosition = targetPosition;
     }
 
-    public double getArmTargetPosition(){
+    public double getArmTargetPosition() {
         return armTargetPosition;
     }
-    private void runArm(){
+
+    private void runArm() {
         armPosition = potentiometer.getVoltage();
 
         oldArmPositions.add(armPosition);
@@ -233,31 +261,35 @@ public class RobotCommon {
         arm.setPower(armLimitedPower / 100);
     }
 
-    public void stopArm(){
+    public void stopArm() {
         moveArm(armPosition);
     }
 
-    public class MoveArmAction implements Action{
+    public class MoveArmAction implements Action {
         private boolean firstRun = true;
         private final double targetPosition;
-        public MoveArmAction(double targetPosition){
+
+        public MoveArmAction(double targetPosition) {
             this.targetPosition = targetPosition;
         }
+
         @Override
         public boolean run(@NonNull TelemetryPacket telemetryPacket) {
-            if (firstRun){
+            if (firstRun) {
                 moveArm(targetPosition);
                 firstRun = false;
             }
             return Math.abs(targetPosition - armPosition) > 0.1;
         }
     }
-    public Action doMoveArm(double targetPosition){
+
+    public Action doMoveArm(double targetPosition) {
         return new MoveArmAction(targetPosition);
     }
+
     // Hook
-    public void moveHook(boolean extendHook){
-        if (extendHook){
+    public void moveHook(boolean extendHook) {
+        if (extendHook) {
             hook.setPosition(HOOK_EXTENDED);
         } else {
             hook.setPosition(HOOK_RETRACTED);
@@ -265,49 +297,56 @@ public class RobotCommon {
     }
 
     // Slide
-    public void moveSlides(int targetPosition){
+    public void moveSlides(int targetPosition) {
         slides.setTargetPosition(targetPosition);
         slides.setMode(DcMotor.RunMode.RUN_TO_POSITION);
         slides.setVelocity(SLIDE_VELOCITY);
     }
+
     public int getSlideTargetPosition() {
         return slides.getTargetPosition();
     }
-    public void stopSlides(){
+
+    public void stopSlides() {
         moveSlides(slides.getCurrentPosition());
     }
-    public void resetSlides(){
+
+    public void resetSlides() {
         slides.setMode(RunMode.STOP_AND_RESET_ENCODER);
         moveSlides(0);
     }
-    public class MoveSlidesAction implements Action{
+
+    public class MoveSlidesAction implements Action {
         private boolean firstRun = true;
         private final int targetPosition;
-        public MoveSlidesAction(int targetPosition){
+
+        public MoveSlidesAction(int targetPosition) {
             this.targetPosition = targetPosition;
         }
+
         @Override
         public boolean run(@NonNull TelemetryPacket telemetryPacket) {
-            if (firstRun){
+            if (firstRun) {
                 moveSlides(targetPosition);
                 firstRun = false;
             }
             return Math.abs(targetPosition - slides.getCurrentPosition()) > 10;
         }
     }
-    public Action doMoveSlides(int targetPosition){
+
+    public Action doMoveSlides(int targetPosition) {
         return new MoveSlidesAction(targetPosition);
     }
 
     // Intake
-    public void moveIntake (IntakeOptions intakeOption){
-        if (intakeOption == IntakeOptions.OUT){
+    public void moveIntake(IntakeOptions intakeOption) {
+        if (intakeOption == IntakeOptions.OUT) {
             intakeLeft.setPower(1);
             intakeRight.setPower(-1);
-        } else if (intakeOption == IntakeOptions.IN){
+        } else if (intakeOption == IntakeOptions.IN) {
             intakeLeft.setPower(-1);
             intakeRight.setPower(1);
-        } else{
+        } else {
             intakeLeft.setPower(0);
             intakeRight.setPower(0);
         }
@@ -316,9 +355,11 @@ public class RobotCommon {
 
     public class MoveIntakeAction implements Action {
         private IntakeOptions intakeOption;
-        public MoveIntakeAction(IntakeOptions intakeOption){
+
+        public MoveIntakeAction(IntakeOptions intakeOption) {
             this.intakeOption = intakeOption;
         }
+
         @Override
         public boolean run(@NonNull TelemetryPacket telemetryPacket) {
             moveIntake(intakeOption);
@@ -326,11 +367,45 @@ public class RobotCommon {
         }
     }
 
-    public Action doMoveIntake(IntakeOptions intakeOption){
+    public Action doMoveIntake(IntakeOptions intakeOption) {
         return new MoveIntakeAction(intakeOption);
     }
 
-    public void sendTelemetry(Telemetry telemetry){
+    //color
+    private void runColor() {
+        final float[] hsvValues = new float[3];
+        NormalizedRGBA colors = color.getNormalizedColors();
+        Color.colorToHSV(colors.toColor(), hsvValues);
+        colorHue = hsvValues[0];
+        colorDistance = ((DistanceSensor) color).getDistance(DistanceUnit.CM);
+        if (colorDistance < 3) {
+            if (colorHue < 65) {
+                red.on();
+                blue.off();
+                yellow_1.off();
+                yellow_2.off();
+            } else if (colorHue < 160) {
+                red.off();
+                blue.off();
+                yellow_1.on();
+                yellow_2.on();
+            } else {
+                red.off();
+                blue.on();
+                yellow_1.off();
+                yellow_2.off();
+            }
+
+        } else {
+            red.off();
+            blue.off();
+            yellow_1.off();
+            yellow_2.off();
+        }
+
+    }
+
+    public void sendTelemetry(@NonNull Telemetry telemetry) {
         telemetry.addData("Yaw", absoluteYaw);
 
 //        telemetry.addData("frontLeftTarget", frontLeftTarget);
@@ -352,9 +427,12 @@ public class RobotCommon {
         telemetry.addData("Arm P", armPPart);
         telemetry.addData("Arm Limited Power", armLimitedPower);
         telemetry.addData("Intake", currentIntakeOption.ordinal());
+
+        telemetry.addData("Color distance", colorDistance);
+        telemetry.addData("Color hue", colorHue);
     }
 
-    public void sendTelemetryAuton(TelemetryPacket packet){
+    public void sendTelemetryAuton(TelemetryPacket packet) {
 //        packet.put("Yaw", absoluteYaw);
 
         packet.put("frontLeftVelocity", frontLeft.getVelocity());

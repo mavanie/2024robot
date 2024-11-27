@@ -4,6 +4,7 @@ import com.acmerobotics.dashboard.config.Config;
 import com.qualcomm.robotcore.hardware.DcMotorEx;
 import com.qualcomm.robotcore.hardware.HardwareMap;
 
+import org.firstinspires.ftc.robotcore.external.Telemetry;
 import org.firstinspires.ftc.teamcode.pedroPathing.localization.Encoder;
 import org.firstinspires.ftc.teamcode.pedroPathing.localization.Localizer;
 import org.firstinspires.ftc.teamcode.pedroPathing.localization.Matrix;
@@ -78,21 +79,21 @@ public class ThreeWheelLocalizer extends Localizer {
      */
     public ThreeWheelLocalizer(HardwareMap map, Pose setStartPose) {
         // TODO: replace these with your encoder positions
-        leftEncoderPose = new Pose(-18.5/25.4 - 0.1, 164.4/25.4, 0);
-        rightEncoderPose = new Pose(-18.4/25.4 - 0.1, -159.6/25.4, 0);
-        strafeEncoderPose = new Pose(0*(-107.9/25.4+8)+-107.9/25.4+0.25, -1.1/25.4-0.23, Math.toRadians(90));
+        leftEncoderPose = new Pose(-122/25.4, 78.9/25.4, 0);
+        rightEncoderPose = new Pose(-122/25.4, -78.9/25.4, 0);
+        strafeEncoderPose = new Pose(-122/25.4, 0, Math.toRadians(90));
 
         hardwareMap = map;
 
         // TODO: replace these with your encoder ports
-        leftEncoder = new Encoder(hardwareMap.get(DcMotorEx.class, "leftRear"));
-        rightEncoder = new Encoder(hardwareMap.get(DcMotorEx.class, "rightFront"));
-        strafeEncoder = new Encoder(hardwareMap.get(DcMotorEx.class, "strafeEncoder"));
+        leftEncoder = new Encoder(hardwareMap.get(DcMotorEx.class, "arm"));
+        rightEncoder = new Encoder(hardwareMap.get(DcMotorEx.class, "par1"));
+        strafeEncoder = new Encoder(hardwareMap.get(DcMotorEx.class, "perp"));
 
         // TODO: reverse any encoders necessary
-        leftEncoder.setDirection(Encoder.REVERSE);
-        rightEncoder.setDirection(Encoder.REVERSE);
-        strafeEncoder.setDirection(Encoder.FORWARD);
+//        leftEncoder.setDirection(Encoder.REVERSE);
+//        rightEncoder.setDirection(Encoder.REVERSE);
+//        strafeEncoder.setDirection(Encoder.FORWARD);
 
         setStartPose(setStartPose);
         timer = new NanoTimer();
@@ -288,5 +289,16 @@ public class ThreeWheelLocalizer extends Localizer {
      * This does nothing since this localizer does not use the IMU.
      */
     public void resetIMU() {
+    }
+
+    /**
+     * Send the 3 encoder positions.
+     *
+     * @param telemetry The Telemetry object
+     */
+    public void debug(Telemetry telemetry) {
+        telemetry.addData("leftEncoder", leftEncoder.getCurrentPosition());
+        telemetry.addData("rightEncoder", rightEncoder.getCurrentPosition());
+        telemetry.addData("strafeEncoder", strafeEncoder.getCurrentPosition());
     }
 }

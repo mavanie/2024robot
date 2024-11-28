@@ -50,6 +50,7 @@ public class LocalizationTest extends OpMode {
     @Override
     public void init() {
         poseUpdater = new PoseUpdater(hardwareMap);
+        poseUpdater.resetIMU();
 
         dashboardPoseTracker = new DashboardPoseTracker(poseUpdater);
 

@@ -59,7 +59,7 @@ public class ThreeWheelLocalizer extends Localizer {
     public static double FORWARD_TICKS_TO_INCHES = 0.0010693951833700983;
     public static double STRAFE_TICKS_TO_INCHES = 0.0010693951833700983;
     public static double TURN_TICKS_TO_RADIANS = -0.0010317946421504703;
-    public static double ENCODER_X_OFFSET = -110/25.4;
+    public static double ENCODER_X_OFFSET = -117/25.4;
     public static double ENCODER_Y_OFFSET = 79.7/25.4;
 
     /**
@@ -95,7 +95,7 @@ public class ThreeWheelLocalizer extends Localizer {
         // TODO: reverse any encoders necessary
         leftEncoder.setDirection(Encoder.FORWARD);
         rightEncoder.setDirection(Encoder.FORWARD);
-        strafeEncoder.setDirection(Encoder.REVERSE);
+        strafeEncoder.setDirection(Encoder.FORWARD);
 
         setStartPose(setStartPose);
         timer = new NanoTimer();

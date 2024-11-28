@@ -58,7 +58,7 @@ public class LocalizationTest extends OpMode {
         rightRear = hardwareMap.get(DcMotorEx.class, rightRearMotorName);
         rightFront = hardwareMap.get(DcMotorEx.class, rightFrontMotorName);
 
-        leftFront.setDirection(DcMotorSimple.Direction.REVERSE);
+        rightFront.setDirection(DcMotorSimple.Direction.REVERSE);
         leftRear.setDirection(DcMotorSimple.Direction.REVERSE);
 
         motors = Arrays.asList(leftFront, leftRear, rightFront, rightRear);
@@ -91,23 +91,36 @@ public class LocalizationTest extends OpMode {
         poseUpdater.update();
         dashboardPoseTracker.update();
 
-        double y = -gamepad1.left_stick_y; // Remember, this is reversed!
-        double x = gamepad1.left_stick_x; // this is strafing
-        double rx = gamepad1.right_stick_x;
+        double y = -gamepad1.left_stick_y * Math.abs(gamepad1.left_stick_y); // Remember, this is reversed!
+        double x = gamepad1.left_stick_x * Math.abs(gamepad1.left_stick_x); // this is strafing
+        double rx = (gamepad1.right_trigger - gamepad1.left_trigger) * Math.abs(gamepad1.right_trigger - gamepad1.left_trigger);
 
         // Denominator is the largest motor power (absolute value) or 1
         // This ensures all the powers maintain the same ratio, but only when
         // at least one is out of the range [-1, 1]
-        double denominator = Math.max(Math.abs(y) + Math.abs(x) + Math.abs(rx), 1);
+        double denominator = Math.max(Math.abs(y) + Math.abs(x) + Math.abs(rx), 0.7);
         double leftFrontPower = (y + x + rx) / denominator;
         double leftRearPower = (y - x + rx) / denominator;
         double rightFrontPower = (y - x - rx) / denominator;
         double rightRearPower = (y + x - rx) / denominator;
 
-//        leftFront.setPower(leftFrontPower);
-//        leftRear.setPower(leftRearPower);
-//        rightFront.setPower(rightFrontPower);
-//        rightRear.setPower(rightRearPower);
+        if (gamepad1.x) {
+            leftFrontPower = 1;
+        }
+        if (gamepad1.a) {
+            leftRearPower = 1;
+        }
+        if (gamepad1.y) {
+            rightFrontPower = 1;
+        }
+        if (gamepad1.b) {
+            rightRearPower = 1;
+        }
+
+        leftFront.setPower(leftFrontPower);
+        leftRear.setPower(leftRearPower);
+        rightFront.setPower(rightFrontPower);
+        rightRear.setPower(rightRearPower);
 
         telemetryA.addData("x", poseUpdater.getPose().getX());
         telemetryA.addData("y", poseUpdater.getPose().getY());
